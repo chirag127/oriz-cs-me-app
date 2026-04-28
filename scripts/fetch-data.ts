@@ -82,7 +82,11 @@ import {
   fetchYouTubeStats,
   fetchYouTubeVideos,
 } from '../src/lib/api/youtube.js';
-import { imageExists, uploadImage, getPosterUrl } from '../src/lib/api/r2.js';
+import {
+  localImageExists,
+  saveLocalImage,
+  getLocalPosterUrl,
+} from '../src/lib/api/local-storage.js';
 import pLimit from 'p-limit';
 
 // Concurrency limit for media operations to prevent rate-limiting/timeouts
@@ -91,7 +95,7 @@ const limit = pLimit(2);
 /**
  * Resolves posters for a list of items (movies or shows).
  * 3-Tier Strategy:
- * 1. Cloudflare R2 (Check Cache)
+ * 1. Local Storage (Check local posters directory - GitHub repo)
  * 2. TMDB API (Official Studio Source - Using Read Access Token)
  * 3. Zero-Auth Fallbacks (TVMaze for TV, Jikan for Anime)
  */
@@ -104,10 +108,12 @@ async function resolvePosters(items: any[]) {
 
     const filename = `${item.imdbId || item.tmdbId}.jpg`;
     
-    // Tier 1: Check R2 Cache
-    const exists = await imageExists(filename);
-    if (exists) return { ...item, posterUrl: getPosterUrl(filename) };
-
+    // Tier 1: Check Local Storage (GitHub repo)
+    const localExists = await localImageExists(filename);
+    if (localExists) {
+      return { ...item, posterUrl: getLocalPosterUrl(filename) };
+    }
+    
     const fetchWithRetry = async (url: string, options = {}, retries = 3): Promise<Response | null> => {
       for (let i = 0; i < retries; i++) {
         try {
@@ -181,12 +187,13 @@ async function resolvePosters(items: any[]) {
         }
       }
 
-      // If resolved, cache to R2
+      // If resolved, save to local storage (GitHub repo)
       if (buffer) {
-        const r2Url = await uploadImage(filename, buffer);
-        // Small delay to prevent R2 hammer
+        const localUrl = await saveLocalImage(filename, buffer);
+        
+        // Small delay to prevent rate-limiting
         await new Promise(r => setTimeout(r, 500));
-        return { ...item, posterUrl: r2Url };
+        return { ...item, posterUrl: localUrl };
       }
     } catch (err: any) {
       console.warn(`[Media] Error on ${item.title}:`, err.message);
