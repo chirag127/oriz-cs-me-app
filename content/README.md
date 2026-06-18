@@ -8,7 +8,7 @@
 
 If a future collection lands under `content/`, it should follow the layout AGENTS.md documents:
 
-```
+```text
 content/
   identity.json              Name, email, role, location, taglines
   resume/base.yaml           RenderCV master data
