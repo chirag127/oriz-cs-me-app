@@ -1,0 +1,72 @@
+name: Refresh OpenRouter free model catalog
+
+# Pulls the live list of OpenRouter `:free` models once a day and
+# commits the snapshot to public/data/openrouter-free-models.json. The
+# AI chat picker (src/lib/ai/models.ts) loads that JSON at runtime, so
+# new free models become available without a manual edit and retired
+# slugs (like the previous arcee-ai/trinity-large-preview:free) drop
+# out automatically.
+#
+# - Runs daily at 20:30 UTC (≈ 2:00 AM IST), the same slot daily-build
+#   already uses; both jobs share the daily wake-up window.
+# - Skips the commit when the snapshot is byte-identical (the script
+#   preserves the prior fetchedAt on no-data-change, so a clean diff
+#   means nothing real changed).
+# - Pushed via GH_PAT so the resulting commit triggers daily-build,
+#   which re-bakes the snapshot into the deployed dist.
+# - workflow_dispatch enabled for manual re-runs after OpenRouter
+#   publishes a notable model.
+
+on:
+  schedule:
+    - cron: '30 20 * * *'   # 02:00 IST daily
+  workflow_dispatch:
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
+jobs:
+  refresh-models:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          # Use the PAT so the resulting push triggers daily-build
+          # (the default GITHUB_TOKEN's pushes do not trigger other workflows).
+          token: ${{ secrets.GH_PAT }}
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      - name: Fetch OpenRouter free models
+        # The script's stableSerialize() preserves the prior fetchedAt
+        # when the model list and tier chains are byte-identical to the
+        # last snapshot, so 'git diff --quiet' below works without any
+        # SOURCE_DATE_EPOCH plumbing — content drives the change, not
+        # the wall clock.
+        run: pnpm exec tsx scripts/fetch-openrouter-models.ts
+
+      - name: Commit and push snapshot
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add public/data/openrouter-free-models.json
+          if git diff --staged --quiet; then
+            echo "OpenRouter free model list unchanged — skipping commit."
+          else
+            COUNT=$(node -e "console.log(require('./public/data/openrouter-free-models.json').models.length)")
+            git commit -m "chore(ai): refresh OpenRouter free models (${COUNT} entries) [skip ci]"
+            git push
+          fi
