@@ -1,8 +1,12 @@
-# `content/` — personal data lives here
+# `content/` — currently unused
 
-> Stub. AGENTS.md mandates `content/` as the single source of truth, but the migration from `src/data/*.ts` is not yet done. See [`docs/QUESTIONS.md`](../docs/QUESTIONS.md) Q1 for the migration plan.
+> Per owner directive 2026-06-19 (see [`docs/QUESTIONS.md`](../docs/QUESTIONS.md#q1) Q1), this directory is **aspirational, not active**. Personal data continues to live in `src/data/*.ts` and inline in `src/pages/*.astro`. AGENTS.md's "single source of truth = content/" rule is downgraded to a future target.
+>
+> If you are an AI agent reading this: **do not migrate `src/data/*.ts` into `content/`.** Make changes where the data already lives. The `content/` layout below is the target shape for any greenfield collection (résumé variants, blog, journal) — not a prerequisite for landing changes elsewhere.
 
-When this directory is built out, expect the layout from AGENTS.md:
+## Aspirational layout
+
+If a future collection lands under `content/`, it should follow the layout AGENTS.md documents:
 
 ```
 content/
@@ -23,8 +27,9 @@ content/
   journal/*.mdx              Public journal entries
 ```
 
-## Editing rules
+When and only when that happens, each collection gets a Zod schema in `src/lib/schemas/` and `pnpm validate-content` starts doing real work.
 
-- The owner (the human) edits this directory; tooling reads but does not write (the resume PDF compiler is the only exception, writing to `public/resume/`).
-- Every collection has a Zod schema in `src/lib/schemas/`. `pnpm validate-content` runs in pre-commit and CI.
-- For day-to-day content edits, see [`docs/authoring.md`](../docs/authoring.md) (planned).
+## Today's reality
+
+- Personal data: [`src/data/social.ts`](../src/data/social.ts), [`src/data/resume.ts`](../src/data/resume.ts), [`src/data/testimonials.ts`](../src/data/testimonials.ts).
+- Shared identifiers (usernames, endpoints, location): [`src/lib/config.ts`](../src/lib/config.ts) — this remains the single source of truth for those, and that rule **is** enforced.
