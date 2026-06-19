@@ -1,17 +1,29 @@
 /**
- * Turso client helper for Cloudflare Pages Functions.
+ * Turso client helper for Cloudflare Pages Functions — READ-ONLY edge layer.
+ *
+ * Per the 100-year-strategy decision (§10), Turso is the warm-cache for the
+ * canonical JSONL store in chirag127/oriz-me-data. This helper exists so
+ * Pages Functions on the live edge can serve the last ~24 h of events fast;
+ * older data is read from static JSON snapshots committed to the site repo.
+ *
+ * The default role is `'read'` and that is what Pages Functions should use.
+ * The `'write'` role is documented for completeness but is reserved for the
+ * `scripts/rebuild-cache.ts` pipeline ONLY — it runs in the daily GitHub
+ * Action that reads JSONL shards and re-populates the Turso `events` table.
+ * Ingest workers MUST NOT call this with `'write'`; they append to JSONL
+ * via `src/lib/lifestream/jsonl.ts` and let the next rebuild propagate.
  *
  * Pages Functions don't read env from `import.meta.env` — they receive it
  * as a binding on the request context (`context.env`). This module exposes
  * a helper that takes the request context and returns a libSQL client
- * configured for either read-only or write access.
+ * configured for either read-only or (rebuild-only) write access.
  *
- * Use from any `functions/api/**` or `functions/scheduled/**` handler:
+ * Use from any `functions/api/**` handler:
  *
  *     import { getRequestClient } from '../_helpers/turso.ts';
  *
  *     export async function onRequestGet(ctx: PagesFunctionContext) {
- *       const db = getRequestClient(ctx, 'read');
+ *       const db = getRequestClient(ctx); // role defaults to 'read'
  *       const r = await db.execute('SELECT * FROM events_public LIMIT 50');
  *       return Response.json(r.rows);
  *     }

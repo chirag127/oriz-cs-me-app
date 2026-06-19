@@ -1,5 +1,13 @@
 /**
- * Lifestream event types — the public-facing data layer for the digital twin.
+ * Lifestream event types — the SHARED type layer between the canonical
+ * JSONL store (chirag127/oriz-me-data, plain text in git) and the Turso
+ * warm-cache rebuilt from it on every deploy.
+ *
+ * Per the 100-year-strategy decision (§10–§11), JSONL files in a separate
+ * public git repo are authoritative. Turso is a query-optimised cache; if
+ * Turso disappears the cache rebuilds from `git clone`. Both layers share
+ * this file so the producer (jsonl.ts append path) and the consumer
+ * (rebuild-cache → upsert.ts → live-edge read.ts) stay in lockstep.
  *
  * One `events` table absorbs every kind of activity (music, books, watch,
  * workouts, code commits, places, manual logs). New media types add a `kind`
@@ -74,10 +82,20 @@ export type EventKind =
  * - `public` — anyone can see it; `events_public` view filters to this.
  * - `unlisted` — visible only on year-in-review aggregates, not the live feed.
  * - `private` — admin-only via the Pages Function with the write token.
+ * - `age-gated-18` — public but only after the visitor confirms 18+ via the
+ *   AgeGate component. See knowledge/decisions/age-gating-policy.md.
+ * - `aggregates-only` — never surface the row itself; the consumer may count
+ *   it, sum it, average over it. Used for journal entries and inner-life
+ *   metrics per 100-year-strategy §6.
  *
  * Default policy lives in knowledge/decisions/visibility-defaults.md.
  */
-export type EventVisibility = 'public' | 'unlisted' | 'private';
+export type EventVisibility =
+  | 'public'
+  | 'unlisted'
+  | 'private'
+  | 'age-gated-18'
+  | 'aggregates-only';
 
 /**
  * A single lifestream event. Mirrors the SQL row but with parsed metadata.
@@ -153,4 +171,40 @@ export interface UpsertResult {
 export interface BatchUpsertResult {
   inserted: number;
   skipped: number;
+}
+
+/**
+ * One line of a JSONL shard in the canonical store. Identical to `Event`
+ * except for the explicit `schema_version` field — every line records which
+ * schema it was written under so a 2076 reader can decode a 2026 line
+ * without guessing. Bump the constant in `jsonl.ts` only when the shape
+ * changes incompatibly; additive changes keep the same version.
+ *
+ * The canonical store NEVER omits `id`, `visibility`, or `ingested_at` —
+ * the writer fills these on append so each line is self-describing without
+ * needing to consult the cache.
+ */
+export interface JsonlEntry extends Event {
+  /**
+   * Schema version this line was written under. Readers must branch on this
+   * field, not on the file name or any external manifest.
+   */
+  schema_version: number;
+}
+
+/**
+ * Metadata about a single shard file in the canonical JSONL store. Used by
+ * the size-tracking logic to decide when a year-file should split into
+ * month-files (per 100-year-strategy §11: 10 MB pre-compression ceiling).
+ *
+ * `month` is undefined for a year-shard (`events-2026.jsonl`) and set for a
+ * month-shard (`events-2026-06.jsonl`).
+ */
+export interface JsonlShard {
+  year: number;
+  month?: number;
+  /** Absolute or repo-relative path to the shard file. */
+  path: string;
+  size_bytes: number;
+  entry_count: number;
 }

@@ -1,14 +1,26 @@
 /**
- * Turso (libSQL) client singletons for the lifestream events store.
+ * Turso (libSQL) client singletons — the WARM-CACHE layer for lifestream.
+ *
+ * Per the 100-year-strategy decision (§10), Turso is NOT canonical. The
+ * authoritative store is plain JSONL files in chirag127/oriz-me-data
+ * (managed via `src/lib/lifestream/jsonl.ts`). Turso exists purely as a
+ * query-optimised cache so the live edge layer can serve the last ~24 h
+ * of events fast; if Turso disappears, the cache is rebuilt from
+ * `git clone` of the JSONL repo on the next deploy.
  *
  * Two roles, two tokens:
  *
  * - `read` — backed by TURSO_AUTH_TOKEN_READ. Browser-safe (the token itself
  *   is read-only and gated to the `events_public` view). Used in Astro
  *   server-rendered pages and from islands that need to query directly.
- * - `write` — backed by TURSO_AUTH_TOKEN_WRITE. SERVER-ONLY. Used by the
- *   ingest workers (Cloudflare Cron Triggers in `functions/scheduled/*.ts`).
- *   Never imported into a client island; never exposed as a `PUBLIC_*` env.
+ *   This is the high-traffic path: every Pages Function read goes here.
+ * - `cache-rebuild` (formerly `write`) — backed by TURSO_AUTH_TOKEN_WRITE.
+ *   SERVER-ONLY. Used EXCLUSIVELY by the rebuild-cache pipeline that
+ *   reads JSONL shards and re-populates the `events` table on every
+ *   deploy. Direct ingest workers MUST NOT use this — they append to
+ *   JSONL via `jsonl.ts` instead, and the cache rebuild picks up the
+ *   change on the next scheduled run. Never imported into a client island;
+ *   never exposed as a `PUBLIC_*` env.
  *
  * The clients are memoised per-role so repeated `getClient(...)` calls inside
  * a single request reuse one socket. The separate `clearClients()` helper
@@ -91,11 +103,14 @@ export function getReadClient(): Client {
 }
 
 /**
- * Convenience accessor for ingest workers. Same as `getClient('write')`.
+ * Convenience accessor for the cache-rebuild script. Same as
+ * `getClient('write')`. Used ONLY by the JSONL → Turso rebuild pipeline
+ * that runs on every deploy; ingest workers must append to JSONL via
+ * `jsonl.ts` instead and let the next rebuild pick the change up.
  *
  * @throws if called from a client-side bundle that lacks TURSO_AUTH_TOKEN_WRITE.
  */
-export function getWriteClient(): Client {
+export function getCacheRebuildClient(): Client {
   return getClient('write');
 }
 

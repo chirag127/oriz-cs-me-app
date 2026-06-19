@@ -1,26 +1,45 @@
 /**
- * Upsert helpers for lifestream events.
+ * Upsert helpers for the lifestream Turso CACHE.
+ *
+ * IMPORTANT — read this before reaching for these functions:
+ *
+ * Per the 100-year-strategy decision (§10), Turso is the warm-cache layer,
+ * NOT the canonical store. Direct ingest workers (Cloudflare cron triggers,
+ * webhook handlers, manual `/log` form submissions) MUST write to the
+ * JSONL canonical store via `src/lib/lifestream/jsonl.ts` —
+ * `appendEvent()` / `batchAppend()` — and stop there. The next scheduled
+ * cache-rebuild picks the change up.
+ *
+ * The functions in this file exist for ONE consumer: the cache-rebuild
+ * pipeline (`scripts/rebuild-cache.ts`, runs in the daily GitHub Action).
+ * That script reads every JSONL shard with `readAllSince()` and re-populates
+ * the Turso `events` table by calling `batchUpsert()` here. If you find
+ * yourself importing `upsertEvent` / `batchUpsert` from anywhere except the
+ * rebuild script, stop and use `jsonl.ts` instead.
  *
  * The `events` table has a `UNIQUE(source, external_id, occurred_at)`
- * constraint. We want re-imports (re-running an ingester, re-uploading a
- * Google Takeout) to be idempotent — duplicates are skipped, NOT errored.
- *
- * SQLite-flavoured `INSERT OR IGNORE` does exactly that: the row is inserted
- * if novel, silently skipped if it would violate any UNIQUE constraint.
+ * constraint. We want re-runs of the rebuild to be idempotent — duplicates
+ * are skipped, NOT errored. SQLite-flavoured `INSERT OR IGNORE` does exactly
+ * that: the row is inserted if novel, silently skipped if it would violate
+ * any UNIQUE constraint.
  *
  * Both helpers below take a libSQL `Client` so the caller controls whether
- * they're using the cached singleton (`getWriteClient()` from `./db.ts`) or
- * a request-scoped client (Pages Function helper).
+ * they're using the cached singleton (`getCacheRebuildClient()` from
+ * `./db.ts`) or a request-scoped client (Pages Function helper).
  */
 
 import type { Client } from '@libsql/client';
 import type { BatchUpsertResult, EventInput, UpsertResult } from './types.ts';
 
 /**
- * Insert a single event. Returns `inserted: false` if the row was a duplicate.
+ * Insert a single event into the Turso cache. Returns `inserted: false` if
+ * the row was a duplicate. ONLY called from the cache-rebuild pipeline —
+ * direct ingest writes go to JSONL via `jsonl.ts`.
  *
  * `id` and `ingested_at` and `visibility` are filled by SQL defaults if not
  * provided; pass them explicitly only when you have a reason to override.
+ * The rebuild path always passes them through because every JSONL line is
+ * self-describing.
  *
  * The `metadata` field is JSON-stringified before write. Reads are expected
  * to JSON.parse it (or use the `events_public` view that already does so on
@@ -73,11 +92,13 @@ export async function upsertEvent(
 }
 
 /**
- * Bulk upsert. Wraps the inserts in a transaction so a partial failure rolls
- * back. Returns counts of `inserted` vs `skipped` (deduped).
+ * Bulk upsert into the Turso cache. Wraps the inserts in a transaction so a
+ * partial failure rolls back. Returns counts of `inserted` vs `skipped`
+ * (deduped).
  *
- * Use this from ingest workers that pull a batch from an upstream API. For
- * cron-frequency calls (every 1 minute), expect batches of 0–50 events.
+ * Use this from the cache-rebuild script after reading JSONL shards via
+ * `readAllSince()` — that script is the only legitimate caller. Ingest
+ * workers must NOT call this; they append to JSONL via `jsonl.ts` instead.
  *
  * Note: libSQL's `transaction()` returns a Transaction handle that must be
  * either committed or rolled back. We commit on success and roll back on any
