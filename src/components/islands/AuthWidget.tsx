@@ -77,7 +77,7 @@ export default function AuthWidget() {
               {(user?.displayName ||
                 user?.email ||
                 puterUser?.username ||
-                'U')[0].toUpperCase()}
+                'U')[0]!.toUpperCase()}
             </div>
           )}
           <div className="flex flex-col items-start px-0.5">

@@ -32,9 +32,10 @@ firebase-debug.log
 # Cloudflare
 .wrangler/
 
-# Generated API data (fetched at build-time)
-src/data/generated/
-public/data/*.json
+# Generated API data — committed weekly by snapshot-weekly.yml so the Astro
+# SSG site has authoritative data baked into the build. Firestore is the
+# canonical store between snapshots; these files are a weekly mirror.
+# (Do NOT re-add to .gitignore — that turns the weekly commit into a no-op.)
 *.log
 
 # TypeScript incremental build cache

@@ -9,7 +9,7 @@ import * as path from 'node:path';
 let db: any = { user: null, posts: [], comments: [] };
 try {
   const raw = await fs.readFile(
-    path.resolve('./src/data/generated/reddit.json'),
+    path.resolve('./src/content/generated/reddit.json'),
     'utf-8',
   );
   db = JSON.parse(raw);

@@ -615,7 +615,7 @@ export async function fetchTraktLive(
   // Merge ratings into watched
   for (const m of watched) {
     if (ratings[m.slug]) {
-      m.rating = ratings[m.slug].rating;
+      m.rating = ratings[m.slug]!.rating;
     }
   }
 

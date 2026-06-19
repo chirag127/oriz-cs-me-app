@@ -9,10 +9,12 @@
   "packageManager": "pnpm@11.7.0",
   "scripts": {
     "dev": "astro dev",
+    "prebuild": "tsx scripts/mirror-content.ts",
     "build": "astro build",
     "preview": "astro preview",
     "astro": "astro",
     "fetch-data": "tsx scripts/fetch-data.ts",
+    "mirror-content": "tsx scripts/mirror-content.ts",
     "validate-content": "tsx scripts/validate-content.ts",
     "lint": "biome check .",
     "lint:fix": "biome check --write .",

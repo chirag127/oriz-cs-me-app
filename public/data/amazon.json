@@ -1,0 +1,71 @@
+{
+  "orders": [
+    {
+      "orderNumber": "D01-8671197-1282263",
+      "date": "15 March 2026",
+      "total": 199.00,
+      "status": "Payment Needed",
+      "items": ["Audible Premium Plus Subscription"]
+    },
+    {
+      "orderNumber": "405-4211271-4245957",
+      "date": "9 March 2026",
+      "total": 734.00,
+      "status": "Delivered",
+      "items": ["Micromax All-New X1i Smart Dual Sim Keypad Phone"]
+    },
+    {
+      "orderNumber": "405-7243914-7711516",
+      "date": "4 March 2026",
+      "total": 654.00,
+      "status": "Delivered",
+      "items": [
+        "ENVIE Battery Charger For Aa & Aaa Rechargeable Batteries",
+        "Envie AAA Rechargeable Batteries 1100 mAh"
+      ]
+    },
+    {
+      "orderNumber": "405-4389028-2746764",
+      "date": "4 March 2026",
+      "total": 399.00,
+      "status": "Cancelled",
+      "items": ["Envie AA Rechargeable Batteries 2800 mAh"]
+    },
+    {
+      "orderNumber": "D01-3141187-5731422",
+      "date": "15 February 2026",
+      "total": 199.00,
+      "status": "Delivered",
+      "items": ["Audible Premium Plus Subscription"]
+    },
+    {
+      "orderNumber": "D01-3806295-8141018",
+      "date": "15 January 2026",
+      "total": 199.00,
+      "status": "Delivered",
+      "items": ["Audible Premium Plus Subscription"]
+    }
+  ],
+  "buyAgainProducts": [
+    { "name": "realme Buds Wireless 5 ANC", "price": 1739, "category": "Audio", "purchased": true },
+    { "name": "Boat Rockerz 150 Pro", "price": 999, "category": "Audio", "purchased": true },
+    { "name": "Pigeon Pressure Cooker", "price": 699, "category": "Appliances", "purchased": true },
+    { "name": "Amazon Basics 12W Charger", "price": 249, "category": "Peripherals", "purchased": true },
+    { "name": "Quenchlabz Whey Protein", "price": 1090, "category": "Food & Groceries", "purchased": true },
+    { "name": "Ferrero Rocher", "price": 360, "category": "Food & Groceries", "purchased": true },
+    { "name": "Horlicks Chocolate", "price": 302, "category": "Food & Groceries", "purchased": true },
+    { "name": "Purepet Cat Food", "price": 160, "category": "Food & Groceries", "purchased": true },
+    { "name": "Vedaka Soy Chunks", "price": 50, "category": "Food & Groceries", "purchased": true },
+    { "name": "Vedaka Sesame", "price": 25, "category": "Food & Groceries", "purchased": true },
+    { "name": "DiSano Oats", "price": 189, "category": "Food & Groceries", "purchased": true },
+    { "name": "Vedaka Fox Nuts", "price": 137, "category": "Food & Groceries", "purchased": true },
+    { "name": "Cashew Split", "price": 157, "category": "Food & Groceries", "purchased": true },
+    { "name": "GreenFinity Seeds", "price": 294, "category": "Food & Groceries", "purchased": true },
+    { "name": "Unibic Cookies", "price": 91, "category": "Food & Groceries", "purchased": true },
+    { "name": "Parle Cake", "price": 30, "category": "Food & Groceries", "purchased": true },
+    { "name": "Parle Hide & Seek", "price": 43, "category": "Food & Groceries", "purchased": true },
+    { "name": "MAGGI Noodles", "price": 20, "category": "Food & Groceries", "purchased": true },
+    { "name": "Sunfeast Bounce", "price": 9, "category": "Food & Groceries", "purchased": true },
+    { "name": "WickedGud Noodles", "price": 100, "category": "Food & Groceries", "purchased": true }
+  ]
+}

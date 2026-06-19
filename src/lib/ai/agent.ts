@@ -177,7 +177,7 @@ export async function* executeAgentStream(
   // Step 4: Execution (Streaming)
   yield {
     type: 'step',
-    content: `🚀 Executing with ${chain[0].split('/')[1] || 'primary model'}...`,
+    content: `🚀 Executing with ${chain[0]?.split('/')[1] || 'primary model'}...`,
   };
 
   const ai = getPuter();

@@ -6,8 +6,8 @@ import {
   summary,
   tagline,
   valueProposition,
-} from '../data/resume';
-import { testimonials } from '../data/testimonials';
+} from '../content';
+import { testimonials } from '../content';
 import {
   fetchBlogPosts,
   fetchDevToArticles,
@@ -113,15 +113,15 @@ const vpIcons: Record<string, string> = {
             <!-- Status badge -->
             <div
               class="inline-flex items-center gap-2 px-3
-                py-1.5 rounded-full bg-teal-500/5
-                border border-teal-500/15
-                text-[11px] font-semibold text-teal-400
+                py-1.5 rounded-full bg-[var(--primary-faint)]
+                border border-[var(--primary-subtle)]
+                text-[11px] font-semibold text-[var(--primary-light)]
                 uppercase tracking-wider mb-6
                 reveal"
             >
               <span
                 class="h-1.5 w-1.5 rounded-full
-                  bg-teal-400 animate-pulse"
+                  bg-[var(--primary-light)] animate-pulse"
               ></span>
               {activeRole.title} @ {activeRole.company}
             </div>
@@ -136,8 +136,8 @@ const vpIcons: Record<string, string> = {
               Engineering software,<br />
               <span
                 class="text-transparent bg-clip-text
-                  bg-gradient-to-r from-teal-400
-                  to-violet-400"
+                  bg-gradient-to-r from-[var(--primary-light)]
+                  to-[var(--primary-lighter)]"
               >
                 AI agents
               </span> &<br />
@@ -184,13 +184,13 @@ const vpIcons: Record<string, string> = {
                 class="inline-flex items-center gap-2
                   px-6 py-3 rounded-xl text-sm
                   font-semibold border
-                  border-teal-500/20 text-teal-400
-                  hover:bg-teal-500/5
+                  border-[var(--primary-subtle)] text-[var(--primary-light)]
+                  hover:bg-[var(--primary-faint)]
                   transition-all duration-200"
               >
                 <span
                   class="h-1.5 w-1.5 rounded-full
-                    bg-teal-400"
+                    bg-[var(--primary-light)]"
                 ></span>
                 Hire Me
               </a>
@@ -244,7 +244,7 @@ const vpIcons: Record<string, string> = {
                 href="https://linkedin.com/in/chirag127"
                 target="_blank"
                 rel="noopener noreferrer"
-                class="hover:text-teal-400
+                class="hover:text-[var(--primary-light)]
                   transition-colors p-1.5"
                 aria-label="LinkedIn"
               >
@@ -323,8 +323,8 @@ const vpIcons: Record<string, string> = {
               <!-- Gradient ring -->
               <div
                 class="absolute inset-0 rounded-3xl
-                  bg-gradient-to-br from-teal-500/20
-                  to-violet-500/20 blur-xl"
+                  bg-gradient-to-br from-[var(--primary-subtle)]
+                  to-[var(--primary-muted)] blur-xl"
               ></div>
               <!-- Avatar -->
               <img
@@ -396,21 +396,21 @@ const vpIcons: Record<string, string> = {
             <div
               class="group p-6 rounded-2xl
                 bg-white/[0.015] border border-white/5
-                hover:border-teal-500/15
+                hover:border-[var(--primary-subtle)]
                 hover:bg-white/[0.025]
                 transition-all duration-300"
             >
               <div
                 class="flex items-center justify-center
                   h-10 w-10 rounded-xl
-                  bg-gradient-to-br from-teal-500/10
-                  to-violet-500/10
+                  bg-gradient-to-br from-[var(--primary-muted)]
+                  to-[var(--primary-subtle)]
                   border border-white/5
-                  mb-4 group-hover:border-teal-500/20
+                  mb-4 group-hover:border-[var(--primary-subtle)]
                   transition-colors"
               >
                 <svg
-                  class="h-5 w-5 text-teal-400"
+                  class="h-5 w-5 text-[var(--primary-light)]"
                   fill="none"
                   viewBox="0 0 24 24"
                   stroke="currentColor"
@@ -508,12 +508,12 @@ const vpIcons: Record<string, string> = {
         >
           <div
             class="flex items-center gap-2 text-xs
-              font-semibold text-teal-400 uppercase
+              font-semibold text-[var(--primary-light)] uppercase
               tracking-wider mb-4"
           >
             <span
               class="h-1.5 w-1.5 rounded-full
-                bg-teal-400"
+                bg-[var(--primary-light)]"
             ></span>
             Current Role
           </div>
@@ -524,7 +524,7 @@ const vpIcons: Record<string, string> = {
           >
             {activeRole.title}
           </h3>
-          <p class="text-teal-400/70 text-sm mb-3">
+          <p class="text-[var(--primary-light)]/70 text-sm mb-3">
             {activeRole.company} · {activeRole.date}
           </p>
           <p
@@ -536,7 +536,7 @@ const vpIcons: Record<string, string> = {
           <a
             href="/work"
             class="text-xs font-semibold text-white/30
-              hover:text-teal-400 transition-colors
+              hover:text-[var(--primary-light)] transition-colors
               group inline-flex items-center gap-1"
           >
             View full resume
@@ -572,7 +572,7 @@ const vpIcons: Record<string, string> = {
               >
                 {honors[0].title}
               </h4>
-              <p class="text-teal-400/60 text-xs">
+              <p class="text-[var(--primary-light)]/60 text-xs">
                 {honors[0].description}
               </p>
             </div>
@@ -638,7 +638,7 @@ const vpIcons: Record<string, string> = {
               class="group relative overflow-hidden
                 rounded-2xl bg-white/[0.015]
                 border border-white/5
-                hover:border-teal-500/15
+                hover:border-[var(--primary-subtle)]
                 transition-all duration-300
                 p-6 flex flex-col justify-between
                 min-h-[200px]"
@@ -655,8 +655,8 @@ const vpIcons: Record<string, string> = {
                         border border-white/5
                         text-[9px] uppercase font-bold
                         text-white/40 tracking-wider
-                        group-hover:border-teal-500/15
-                        group-hover:text-teal-400/60
+                        group-hover:border-[var(--primary-subtle)]
+                        group-hover:text-[var(--primary-light)]/60
                         transition-colors"
                     >
                       {tag}
@@ -667,7 +667,7 @@ const vpIcons: Record<string, string> = {
               <div>
                 <h3
                   class="text-lg font-bold text-white mb-1.5
-                    group-hover:text-teal-300
+                    group-hover:text-[var(--primary-lighter)]
                     transition-colors"
                   style="font-family:
                     var(--font-display, 'Outfit');"
@@ -684,7 +684,7 @@ const vpIcons: Record<string, string> = {
               <!-- Arrow -->
               <div
                 class="mt-4 flex items-center gap-1.5
-                  text-[10px] font-bold text-teal-400/50
+                  text-[10px] font-bold text-[var(--primary-light)]/50
                   opacity-0 -translate-x-2
                   group-hover:opacity-100
                   group-hover:translate-x-0
@@ -731,7 +731,7 @@ const vpIcons: Record<string, string> = {
               rel="noopener noreferrer"
               class="group p-6 rounded-2xl
                 bg-white/[0.015] border border-white/5
-                hover:border-violet-500/15
+                hover:border-[var(--primary-subtle)]
                 hover:bg-white/[0.025]
                 transition-all duration-300"
             >
@@ -747,8 +747,8 @@ const vpIcons: Record<string, string> = {
                 <div
                   class="flex items-center justify-center
                     h-9 w-9 rounded-full
-                    bg-gradient-to-br from-teal-500/20
-                    to-violet-500/20
+                    bg-gradient-to-br from-[var(--primary-subtle)]
+                    to-[var(--primary-muted)]
                     text-xs font-bold text-white/60"
                 >
                   {t.name
@@ -845,7 +845,7 @@ const vpIcons: Record<string, string> = {
               class="group flex items-center
                 justify-between p-5 rounded-2xl
                 bg-white/[0.015] border border-white/5
-                hover:border-teal-500/10
+                hover:border-[var(--primary-muted)]
                 hover:bg-white/[0.025]
                 transition-all duration-300"
             >
@@ -878,7 +878,7 @@ const vpIcons: Record<string, string> = {
                 <div>
                   <h3
                     class="font-bold text-white text-sm
-                      group-hover:text-teal-300
+                      group-hover:text-[var(--primary-lighter)]
                       transition-colors mb-1
                       line-clamp-1"
                   >
@@ -894,7 +894,7 @@ const vpIcons: Record<string, string> = {
                     {article.tag_list
                       ?.slice(0, 2)
                       .map((tag: string) => (
-                        <span class="text-teal-400/40">
+                        <span class="text-[var(--primary-light)]/40">
                           #{tag}
                         </span>
                       ))}
@@ -903,7 +903,7 @@ const vpIcons: Record<string, string> = {
               </div>
               <svg
                 class="h-4 w-4 text-white/10
-                  group-hover:text-teal-400/50
+                  group-hover:text-[var(--primary-light)]/50
                   transition-colors flex-shrink-0"
                 fill="none"
                 viewBox="0 0 24 24"
@@ -964,9 +964,9 @@ const vpIcons: Record<string, string> = {
         <div
           class="relative overflow-hidden rounded-2xl
             p-8 sm:p-12 text-center
-            bg-gradient-to-br from-teal-500/5
-            to-violet-500/5
-            border border-teal-500/10"
+            bg-gradient-to-br from-[var(--primary-faint)]
+            to-[var(--primary-muted)]
+            border border-[var(--primary-muted)]"
         >
           <div
             class="absolute inset-0 opacity-30"
@@ -1006,10 +1006,10 @@ const vpIcons: Record<string, string> = {
                 class="inline-flex items-center gap-2
                   px-6 py-3 rounded-xl text-sm
                   font-semibold
-                  bg-gradient-to-r from-teal-500
-                  to-violet-500
+                  bg-gradient-to-r from-[var(--primary)]
+                  to-[var(--primary-light)]
                   text-white shadow-lg
-                  hover:shadow-teal-500/25
+                  hover:shadow-[var(--shadow-glow-teal)]
                   transition-all duration-300
                   hover:scale-[1.02]"
               >

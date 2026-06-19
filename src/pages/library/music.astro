@@ -16,7 +16,7 @@ let db = {
 
 try {
   const raw = await fs.readFile(
-    path.resolve('./src/data/generated/music.json'),
+    path.resolve('./src/content/generated/music.json'),
     'utf-8',
   );
   db = JSON.parse(raw);

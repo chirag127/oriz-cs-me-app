@@ -196,3 +196,185 @@
   --content-max-width: 1200px;
   --mobile-tab-height: 56px;
 }
+
+/* ───────────────────────────────────────────────
+   THEME VARIANTS
+   The :root above defines the default DARK theme. Each `[data-theme]`
+   block below selectively overrides surface/text/border tokens for that
+   theme. Switching themes is a one-attribute write on <html>.
+   ─────────────────────────────────────────────── */
+
+/* Explicit dark — same as :root, declared so the FOUC paint matches when
+   data-theme="dark" is set early before any localStorage read. */
+:root[data-theme='dark'] {
+  --surface-base: var(--raw-black);
+  --surface-raised: var(--raw-gray-950);
+  --surface-elevated: var(--raw-gray-900);
+  --surface-overlay: var(--raw-gray-850);
+  --surface-card: rgba(255, 255, 255, 0.02);
+  --surface-card-hover: rgba(255, 255, 255, 0.04);
+  --surface-sidebar: rgba(10, 10, 14, 0.95);
+
+  --text-primary: var(--raw-white);
+  --text-secondary: var(--raw-gray-300);
+  --text-tertiary: var(--raw-gray-400);
+  --text-muted: var(--raw-gray-500);
+  --text-faint: var(--raw-gray-600);
+  --text-inverse: var(--raw-black);
+
+  --border-subtle: rgba(255, 255, 255, 0.04);
+  --border-default: rgba(255, 255, 255, 0.07);
+  --border-hover: rgba(255, 255, 255, 0.12);
+
+  color-scheme: dark;
+}
+
+/* Light theme — inverted surfaces, dark text on near-white. */
+:root[data-theme='light'] {
+  --surface-base: #fafafa;
+  --surface-raised: #f4f4f8;
+  --surface-elevated: #ffffff;
+  --surface-overlay: #ffffff;
+  --surface-card: rgba(0, 0, 0, 0.02);
+  --surface-card-hover: rgba(0, 0, 0, 0.04);
+  --surface-sidebar: rgba(255, 255, 255, 0.95);
+
+  --text-primary: var(--raw-gray-900);
+  --text-secondary: var(--raw-gray-700);
+  --text-tertiary: var(--raw-gray-600);
+  --text-muted: var(--raw-gray-500);
+  --text-faint: var(--raw-gray-400);
+  --text-inverse: var(--raw-white);
+
+  --border-subtle: rgba(0, 0, 0, 0.05);
+  --border-default: rgba(0, 0, 0, 0.10);
+  --border-hover: rgba(0, 0, 0, 0.18);
+
+  color-scheme: light;
+}
+
+/* AMOLED — pure black for OLED displays + battery savings. */
+:root[data-theme='amoled'] {
+  --surface-base: #000000;
+  --surface-raised: #000000;
+  --surface-elevated: #050505;
+  --surface-overlay: #0a0a0a;
+  --surface-card: rgba(255, 255, 255, 0.025);
+  --surface-card-hover: rgba(255, 255, 255, 0.05);
+  --surface-sidebar: rgba(0, 0, 0, 0.98);
+
+  --text-primary: var(--raw-white);
+  --text-secondary: var(--raw-gray-300);
+  --text-tertiary: var(--raw-gray-400);
+  --text-muted: var(--raw-gray-500);
+  --text-faint: var(--raw-gray-600);
+  --text-inverse: #000000;
+
+  --border-subtle: rgba(255, 255, 255, 0.06);
+  --border-default: rgba(255, 255, 255, 0.10);
+  --border-hover: rgba(255, 255, 255, 0.18);
+
+  color-scheme: dark;
+}
+
+/* High contrast — maximum legibility, WCAG AAA targets. */
+:root[data-theme='contrast'] {
+  --surface-base: #000000;
+  --surface-raised: #0a0a0a;
+  --surface-elevated: #141414;
+  --surface-overlay: #1a1a1a;
+  --surface-card: rgba(255, 255, 255, 0.06);
+  --surface-card-hover: rgba(255, 255, 255, 0.10);
+  --surface-sidebar: rgba(0, 0, 0, 0.98);
+
+  --text-primary: #ffffff;
+  --text-secondary: #f0f0f0;
+  --text-tertiary: #d4d4d4;
+  --text-muted: #b0b0b0;
+  --text-faint: #909090;
+  --text-inverse: #000000;
+
+  --border-subtle: rgba(255, 255, 255, 0.20);
+  --border-default: rgba(255, 255, 255, 0.35);
+  --border-hover: rgba(255, 255, 255, 0.60);
+
+  color-scheme: dark;
+}
+
+/* ───────────────────────────────────────────────
+   ACCENT PALETTE
+   `data-accent` overrides the --primary / --accent tokens with a
+   pre-curated 6-color palette. Defaults to teal (matches :root).
+   ─────────────────────────────────────────────── */
+
+:root[data-accent='cyan'] {
+  --primary: #06b6d4;
+  --primary-light: #22d3ee;
+  --primary-lighter: #67e8f9;
+  --primary-dark: #0891b2;
+  --primary-darker: #0e7490;
+  --primary-faint: rgba(6, 182, 212, 0.06);
+  --primary-muted: rgba(6, 182, 212, 0.12);
+  --primary-subtle: rgba(6, 182, 212, 0.20);
+  --shadow-glow-teal: 0 0 20px rgba(6, 182, 212, 0.18);
+}
+
+:root[data-accent='violet'] {
+  --primary: var(--raw-violet-500);
+  --primary-light: var(--raw-violet-400);
+  --primary-lighter: var(--raw-violet-300);
+  --primary-dark: var(--raw-violet-600);
+  --primary-darker: #6d28d9;
+  --primary-faint: var(--raw-violet-50);
+  --primary-muted: var(--raw-violet-100);
+  --primary-subtle: var(--raw-violet-200);
+  --shadow-glow-teal: 0 0 20px rgba(139, 92, 246, 0.18);
+}
+
+:root[data-accent='emerald'] {
+  --primary: var(--raw-emerald-500);
+  --primary-light: var(--raw-emerald-400);
+  --primary-lighter: #6ee7b7;
+  --primary-dark: #059669;
+  --primary-darker: #047857;
+  --primary-faint: rgba(16, 185, 129, 0.06);
+  --primary-muted: rgba(16, 185, 129, 0.12);
+  --primary-subtle: rgba(16, 185, 129, 0.20);
+  --shadow-glow-teal: 0 0 20px rgba(16, 185, 129, 0.18);
+}
+
+:root[data-accent='amber'] {
+  --primary: var(--raw-amber-500);
+  --primary-light: var(--raw-amber-400);
+  --primary-lighter: var(--raw-amber-300);
+  --primary-dark: #d97706;
+  --primary-darker: #b45309;
+  --primary-faint: rgba(245, 158, 11, 0.06);
+  --primary-muted: rgba(245, 158, 11, 0.12);
+  --primary-subtle: rgba(245, 158, 11, 0.20);
+  --shadow-glow-teal: 0 0 20px rgba(245, 158, 11, 0.18);
+}
+
+:root[data-accent='rose'] {
+  --primary: var(--raw-rose-500);
+  --primary-light: var(--raw-rose-400);
+  --primary-lighter: #fda4af;
+  --primary-dark: #e11d48;
+  --primary-darker: #be123c;
+  --primary-faint: rgba(244, 63, 94, 0.06);
+  --primary-muted: rgba(244, 63, 94, 0.12);
+  --primary-subtle: rgba(244, 63, 94, 0.20);
+  --shadow-glow-teal: 0 0 20px rgba(244, 63, 94, 0.18);
+}
+
+:root[data-accent='sky'] {
+  --primary: var(--raw-sky-500);
+  --primary-light: var(--raw-sky-400);
+  --primary-lighter: #7dd3fc;
+  --primary-dark: #0284c7;
+  --primary-darker: #0369a1;
+  --primary-faint: rgba(14, 165, 233, 0.06);
+  --primary-muted: rgba(14, 165, 233, 0.12);
+  --primary-subtle: rgba(14, 165, 233, 0.20);
+  --shadow-glow-teal: 0 0 20px rgba(14, 165, 233, 0.18);
+}

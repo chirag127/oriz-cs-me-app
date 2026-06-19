@@ -5,6 +5,8 @@ import Sidebar from '../components/Sidebar.astro';
 import AuthBanner from '../components/islands/AuthBanner';
 import ChatWrapper from '../components/islands/ChatWrapper';
 import CookieBanner from '../components/islands/CookieBanner';
+import MegaHeader from '../components/islands/MegaHeader';
+import KeyboardShortcuts from '../components/islands/KeyboardShortcuts';
 
 interface Props {
   title: string;
@@ -31,7 +33,7 @@ const canonicalURL = new URL(
 ---
 
 <!doctype html>
-<html lang="en" class="dark">
+<html lang="en" data-theme="dark" class="dark">
   <head>
     <meta charset="UTF-8" />
     <meta
@@ -127,16 +129,30 @@ const canonicalURL = new URL(
 
     <title>Chirag Singhal — {title}</title>
 
-    <!-- Theme script — prevents flash -->
+    <!-- Theme + accent FOUC paint — must run BEFORE first paint to avoid
+         a flash of the wrong theme/accent. Reads localStorage and sets
+         data-theme + data-accent on <html>, plus the legacy dark/light
+         classes for Tailwind dark: variant. -->
     <script is:inline>
       (function () {
-        const theme =
-          localStorage.getItem('theme') || 'dark';
-        document.documentElement.classList.remove(
-          'light',
-          'dark',
-        );
-        document.documentElement.classList.add(theme);
+        try {
+          var THEMES   = ['dark', 'light', 'amoled', 'contrast'];
+          var ACCENTS  = ['teal', 'cyan', 'violet', 'emerald', 'amber', 'rose', 'sky'];
+          var theme    = localStorage.getItem('theme');
+          var accent   = localStorage.getItem('accent');
+          if (THEMES.indexOf(theme) === -1) theme = 'dark';
+          if (ACCENTS.indexOf(accent) === -1) accent = 'teal';
+          var html = document.documentElement;
+          html.setAttribute('data-theme', theme);
+          if (accent === 'teal') {
+            html.removeAttribute('data-accent');
+          } else {
+            html.setAttribute('data-accent', accent);
+          }
+          var isLight = theme === 'light';
+          html.classList.toggle('light', isLight);
+          html.classList.toggle('dark', !isLight);
+        } catch (_) { /* localStorage may be disabled */ }
       })();
     </script>
   </head>
@@ -150,7 +166,7 @@ const canonicalURL = new URL(
       class="sr-only focus:not-sr-only focus:fixed
         focus:top-4 focus:left-4 focus:z-[60]
         focus:px-4 focus:py-2 focus:rounded-lg
-        focus:bg-teal-500 focus:text-white
+        focus:bg-[var(--primary)] focus:text-white
         focus:outline-none"
     >
       Skip to main content
@@ -200,62 +216,18 @@ const canonicalURL = new URL(
             </svg>
           </button>
 
-          <!-- Page title -->
+          <!-- Page title — collapses on md+ to give the mega header room -->
           <h1
-            class="text-sm font-medium text-white/60
-              truncate flex-1 text-center
-              sm:text-left sm:pl-0"
+            class="md:hidden text-sm font-medium text-white/60
+              truncate flex-1 text-center px-2"
             style="font-family: var(--font-sans);"
           >
             {title}
           </h1>
+          <div class="hidden md:flex flex-1"></div>
 
-          <!-- Right side CTAs -->
-          <div class="flex items-center gap-2 flex-shrink-0">
-            <!-- Hire Me CTA -->
-            <a
-              href="/connect"
-              class="hidden sm:inline-flex items-center
-                gap-2 px-4 py-1.5 rounded-full
-                text-xs font-semibold
-                bg-gradient-to-r from-teal-500
-                to-violet-500
-                text-white shadow-lg
-                hover:shadow-teal-500/25
-                transition-all duration-300
-                hover:scale-[1.02]"
-            >
-              <span class="h-1.5 w-1.5 rounded-full
-                bg-white animate-pulse"></span>
-              Hire Me
-            </a>
-
-            <!-- Command palette trigger -->
-            <button
-              id="cmd-palette-btn"
-              class="hidden sm:flex items-center gap-1.5 px-3
-                py-1.5 rounded-lg border
-                border-[var(--border-default)]
-                text-xs text-white/40
-                hover:text-white/60
-                hover:border-[var(--border-hover)]
-                transition-colors"
-              type="button"
-              title="Search (⌘K)"
-            >
-              <svg
-                class="h-3.5 w-3.5"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-                stroke-width="2"
-              >
-                <circle cx="11" cy="11" r="8" />
-                <path d="m21 21-4.3-4.3" />
-              </svg>
-              <span>⌘K</span>
-            </button>
-          </div>
+          <!-- Right side CTAs (mega header) -->
+          <MegaHeader client:load />
         </header>
 
         <!-- Main content -->
@@ -312,6 +284,7 @@ const canonicalURL = new URL(
 
     <ChatWrapper client:load />
     <CookieBanner client:load />
+    <KeyboardShortcuts client:load />
 
     <!-- Scroll-triggered reveal animations -->
     <script is:inline>

@@ -1,0 +1,27 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://me.oriz.in/schemas/uses.schema.json",
+  "title": "Uses",
+  "description": "Tools and tech stack grouped by category, drives /me/gear.",
+  "type": "array",
+  "items": {
+    "type": "object",
+    "required": ["category", "items"],
+    "additionalProperties": false,
+    "properties": {
+      "category": { "type": "string" },
+      "items": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "required": ["name", "description"],
+          "additionalProperties": false,
+          "properties": {
+            "name":        { "type": "string" },
+            "description": { "type": "string" }
+          }
+        }
+      }
+    }
+  }
+}

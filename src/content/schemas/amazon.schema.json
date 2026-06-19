@@ -1,0 +1,43 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://me.oriz.in/schemas/amazon.schema.json",
+  "title": "Amazon",
+  "description": "Recent orders + frequently-purchased products. Used on /me/gear.",
+  "type": "object",
+  "required": ["orders", "buyAgainProducts"],
+  "additionalProperties": false,
+  "properties": {
+    "orders": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["orderNumber", "date", "total", "status", "items"],
+        "additionalProperties": false,
+        "properties": {
+          "orderNumber": { "type": "string" },
+          "date":        { "type": "string" },
+          "total":       { "type": "number", "minimum": 0 },
+          "status":      { "enum": ["Delivered", "Cancelled", "Payment Needed", "Processing"] },
+          "items":       { "type": "array", "items": { "type": "string" } }
+        }
+      }
+    },
+    "buyAgainProducts": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["name", "price", "category", "purchased"],
+        "additionalProperties": false,
+        "properties": {
+          "name":      { "type": "string" },
+          "price":     { "type": "number", "minimum": 0 },
+          "category":  { "type": "string" },
+          "imageUrl":  { "type": "string", "format": "uri" },
+          "url":       { "type": "string", "format": "uri" },
+          "purchased": { "type": "boolean" },
+          "notes":     { "type": "string" }
+        }
+      }
+    }
+  }
+}

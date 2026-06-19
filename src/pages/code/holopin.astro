@@ -9,7 +9,7 @@ import * as path from 'node:path';
 let db: any = { holopin: null };
 try {
   const raw = await fs.readFile(
-    path.resolve('./src/data/generated/dev-stats.json'),
+    path.resolve('./src/content/generated/dev-stats.json'),
     'utf-8',
   );
   db = JSON.parse(raw);

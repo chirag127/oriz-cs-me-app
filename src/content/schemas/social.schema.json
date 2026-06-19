@@ -1,0 +1,22 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://me.oriz.in/schemas/social.schema.json",
+  "title": "SocialLinks",
+  "description": "List of social/professional platform profiles, grouped by category.",
+  "type": "array",
+  "items": {
+    "type": "object",
+    "required": ["name", "url", "icon", "color", "username", "category"],
+    "additionalProperties": false,
+    "properties": {
+      "name":     { "type": "string" },
+      "url":      { "type": "string", "format": "uri" },
+      "icon":     { "type": "string" },
+      "color":    { "type": "string", "pattern": "^#[0-9a-fA-F]{3,8}$" },
+      "username": { "type": "string" },
+      "category": {
+        "enum": ["dev", "social", "entertainment", "music", "gaming", "reading"]
+      }
+    }
+  }
+}

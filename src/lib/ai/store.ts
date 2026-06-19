@@ -131,7 +131,7 @@ export async function trackVisitor(visitor: VisitorDocument): Promise<void> {
   if (snapshot.empty) {
     await addDoc(collection(db, COLLECTIONS.VISITORS), visitor);
   } else {
-    const docRef = doc(db, COLLECTIONS.VISITORS, snapshot.docs[0].id);
+    const docRef = doc(db, COLLECTIONS.VISITORS, snapshot.docs[0]!.id);
     await updateDoc(docRef, {
       lastVisit: visitor.lastVisit,
       visitCount: increment(1),

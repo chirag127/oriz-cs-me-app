@@ -1,67 +1,170 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
+
+export type ThemeKey = 'dark' | 'light' | 'amoled' | 'contrast';
+export type AccentKey =
+  | 'teal'      // default — matches the :root token
+  | 'cyan'
+  | 'violet'
+  | 'emerald'
+  | 'amber'
+  | 'rose'
+  | 'sky';
+
+const THEMES: { key: ThemeKey; label: string; hint: string }[] = [
+  { key: 'dark',     label: 'Dark',         hint: 'Default' },
+  { key: 'light',    label: 'Light',        hint: 'Inverted' },
+  { key: 'amoled',   label: 'AMOLED',       hint: 'True black' },
+  { key: 'contrast', label: 'High contrast', hint: 'WCAG AAA' },
+];
+
+const ACCENTS: { key: AccentKey; label: string; swatch: string }[] = [
+  { key: 'teal',    label: 'Teal',    swatch: '#14b8a6' },
+  { key: 'cyan',    label: 'Cyan',    swatch: '#06b6d4' },
+  { key: 'violet',  label: 'Violet',  swatch: '#8b5cf6' },
+  { key: 'emerald', label: 'Emerald', swatch: '#10b981' },
+  { key: 'amber',   label: 'Amber',   swatch: '#f59e0b' },
+  { key: 'rose',    label: 'Rose',    swatch: '#f43f5e' },
+  { key: 'sky',     label: 'Sky',     swatch: '#0ea5e9' },
+];
+
+function readStored<T extends string>(key: string, fallback: T, allowed: readonly T[]): T {
+  if (typeof window === 'undefined') return fallback;
+  const v = window.localStorage.getItem(key) as T | null;
+  return v && allowed.includes(v) ? v : fallback;
+}
+
+function applyTheme(theme: ThemeKey) {
+  document.documentElement.setAttribute('data-theme', theme);
+  // Keep the legacy .dark / .light classes in sync — Tailwind's dark:
+  // variant still uses them, and we don't want to migrate ~500 utility
+  // classes today. AMOLED + contrast are dark-family.
+  const isLight = theme === 'light';
+  document.documentElement.classList.toggle('light', isLight);
+  document.documentElement.classList.toggle('dark', !isLight);
+}
+
+function applyAccent(accent: AccentKey) {
+  // 'teal' is the :root default; remove the attribute so the cascade
+  // falls through to the base tokens instead of overriding with
+  // identical values.
+  if (accent === 'teal') {
+    document.documentElement.removeAttribute('data-accent');
+  } else {
+    document.documentElement.setAttribute('data-accent', accent);
+  }
+}
 
 export default function ThemeSwitcher() {
-  const [theme, setTheme] = useState<'dark' | 'light'>('dark');
+  const [theme, setTheme] = useState<ThemeKey>('dark');
+  const [accent, setAccent] = useState<AccentKey>('teal');
+  const [open, setOpen] = useState(false);
+  const wrapRef = useRef<HTMLDivElement>(null);
 
+  // Hydrate from localStorage on mount. The FOUC-paint script in
+  // Layout.astro already applied these to <html> before this ran;
+  // we just sync state.
   useEffect(() => {
-    const saved = localStorage.getItem('theme') as 'dark' | 'light' | null;
-    if (saved) {
-      setTheme(saved);
-      document.documentElement.classList.remove('dark', 'light');
-      document.documentElement.classList.add(saved);
-    }
+    setTheme(readStored<ThemeKey>('theme', 'dark', ['dark', 'light', 'amoled', 'contrast']));
+    setAccent(readStored<AccentKey>('accent', 'teal', ['teal', 'cyan', 'violet', 'emerald', 'amber', 'rose', 'sky']));
   }, []);
 
-  const toggleTheme = () => {
-    const next = theme === 'dark' ? 'light' : 'dark';
+  // Close on outside click + Escape.
+  useEffect(() => {
+    if (!open) return;
+    const onClick = (e: MouseEvent) => {
+      if (!wrapRef.current?.contains(e.target as Node)) setOpen(false);
+    };
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setOpen(false);
+    };
+    document.addEventListener('mousedown', onClick);
+    document.addEventListener('keydown', onKey);
+    return () => {
+      document.removeEventListener('mousedown', onClick);
+      document.removeEventListener('keydown', onKey);
+    };
+  }, [open]);
+
+  const onTheme = (next: ThemeKey) => {
     setTheme(next);
     localStorage.setItem('theme', next);
-    document.documentElement.classList.remove('dark', 'light');
-    document.documentElement.classList.add(next);
+    applyTheme(next);
+  };
+  const onAccent = (next: AccentKey) => {
+    setAccent(next);
+    localStorage.setItem('accent', next);
+    applyAccent(next);
   };
 
+  const currentAccent = ACCENTS.find((a) => a.key === accent) ?? ACCENTS[0];
+
   return (
-    <button
-      type="button"
-      onClick={toggleTheme}
-      className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-sm text-white/70 hover:text-white transition-all"
-      aria-label="Toggle theme"
-    >
-      {theme === 'dark' ? (
-        <>
-          <svg
-            className="h-4 w-4"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-            strokeWidth={2}
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"
-            />
-          </svg>
-          Light Mode
-        </>
-      ) : (
-        <>
-          <svg
-            className="h-4 w-4"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-            strokeWidth={2}
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"
-            />
-          </svg>
-          Dark Mode
-        </>
+    <div ref={wrapRef} className="relative">
+      <button
+        type="button"
+        onClick={() => setOpen((o) => !o)}
+        className="flex items-center gap-2 px-3 py-1.5 rounded-lg border border-[var(--border-default)] text-xs text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:border-[var(--border-hover)] transition-colors"
+        aria-label="Theme and accent settings"
+        aria-haspopup="menu"
+        aria-expanded={open}
+      >
+        <span
+          className="inline-block h-3 w-3 rounded-full ring-1 ring-white/20"
+          style={{ background: currentAccent?.swatch }}
+          aria-hidden="true"
+        />
+        <span className="hidden sm:inline">Theme</span>
+      </button>
+
+      {open && (
+        <div
+          role="menu"
+          className="absolute right-0 mt-2 w-56 rounded-xl border border-[var(--border-default)] bg-[var(--surface-elevated)] shadow-2xl overflow-hidden z-40"
+        >
+          <div className="px-3 py-2 text-[10px] font-semibold uppercase tracking-wider text-[var(--text-muted)]">
+            Theme
+          </div>
+          {THEMES.map((t) => (
+            <button
+              key={t.key}
+              type="button"
+              role="menuitemradio"
+              aria-checked={t.key === theme}
+              onClick={() => onTheme(t.key)}
+              className={`w-full flex items-center justify-between gap-2 px-3 py-2 text-xs text-left hover:bg-[var(--surface-card-hover)] ${
+                t.key === theme ? 'text-[var(--text-primary)]' : 'text-[var(--text-secondary)]'
+              }`}
+            >
+              <span>{t.label}</span>
+              <span className="text-[10px] text-[var(--text-muted)]">
+                {t.key === theme ? '✓' : t.hint}
+              </span>
+            </button>
+          ))}
+          <div className="border-t border-[var(--border-subtle)] mt-1 pt-2 px-3 text-[10px] font-semibold uppercase tracking-wider text-[var(--text-muted)]">
+            Accent
+          </div>
+          <div className="grid grid-cols-7 gap-1.5 p-3">
+            {ACCENTS.map((a) => (
+              <button
+                key={a.key}
+                type="button"
+                role="menuitemradio"
+                aria-checked={a.key === accent}
+                aria-label={a.label}
+                title={a.label}
+                onClick={() => onAccent(a.key)}
+                className={`h-6 w-6 rounded-full ring-2 transition-transform ${
+                  a.key === accent
+                    ? 'ring-[var(--text-primary)] scale-110'
+                    : 'ring-transparent hover:scale-105'
+                }`}
+                style={{ background: a.swatch }}
+              />
+            ))}
+          </div>
+        </div>
       )}
-    </button>
+    </div>
   );
 }

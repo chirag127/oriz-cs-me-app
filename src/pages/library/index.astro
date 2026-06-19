@@ -20,7 +20,7 @@ try {
   moviesDb = JSON.parse(
     await fs.readFile(
       path.resolve(
-        './src/data/generated/movies.json',
+        './src/content/generated/movies.json',
       ),
       'utf-8',
     ),
@@ -30,7 +30,7 @@ try {
   booksDb = JSON.parse(
     await fs.readFile(
       path.resolve(
-        './src/data/generated/books.json',
+        './src/content/generated/books.json',
       ),
       'utf-8',
     ),
@@ -40,7 +40,7 @@ try {
   musicDb = JSON.parse(
     await fs.readFile(
       path.resolve(
-        './src/data/generated/music.json',
+        './src/content/generated/music.json',
       ),
       'utf-8',
     ),
@@ -50,7 +50,7 @@ try {
   animeDb = JSON.parse(
     await fs.readFile(
       path.resolve(
-        './src/data/generated/anime.json',
+        './src/content/generated/anime.json',
       ),
       'utf-8',
     ),
@@ -464,7 +464,7 @@ const moreLinks = [
             <h3
               class="text-sm font-semibold
                 text-white/60
-                group-hover:text-teal-400
+                group-hover:text-[var(--primary-light)]
                 transition-colors"
             >
               {link.title}
@@ -484,7 +484,7 @@ const moreLinks = [
           gap-2 mb-2"
       >
         <svg
-          class="h-4 w-4 text-teal-400/50"
+          class="h-4 w-4 text-[var(--primary-light)]/50"
           fill="none"
           viewBox="0 0 24 24"
           stroke="currentColor"

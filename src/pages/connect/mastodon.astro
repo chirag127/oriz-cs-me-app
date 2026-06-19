@@ -8,7 +8,7 @@ import * as path from 'node:path';
 let db: any = { account: null, statuses: [] };
 try {
   const raw = await fs.readFile(
-    path.resolve('./src/data/generated/mastodon.json'),
+    path.resolve('./src/content/generated/mastodon.json'),
     'utf-8',
   );
   db = JSON.parse(raw);

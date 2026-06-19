@@ -125,18 +125,31 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         }
       };
 
-      // Poll for Puter.js readiness
+      // Poll for Puter.js readiness. Was 1s × 16 attempts (16s wall) which
+      // is painful when puter.com is unreachable on the user's network. Now
+      // 250ms × 12 (3s ceiling), and we short-circuit when navigator.onLine
+      // reports offline since the SDK script can't have loaded then.
+      const PUTER_POLL_MS = 250;
+      const PUTER_MAX_ATTEMPTS = 12; // 3s total
+
+      if (typeof navigator !== 'undefined' && navigator.onLine === false) {
+        console.log('[AuthStore] Offline — skipping Puter.js detection.');
+        return;
+      }
+
       let attempts = 0;
       const interval = setInterval(() => {
         const w = window as any;
         if (w.puter) {
           checkPuter();
           clearInterval(interval);
-        } else if (attempts++ > 15) {
-          console.log('[AuthStore] Puter.js not found after 15s');
+        } else if (attempts++ >= PUTER_MAX_ATTEMPTS) {
+          console.log(
+            `[AuthStore] Puter.js not found after ${(PUTER_MAX_ATTEMPTS * PUTER_POLL_MS) / 1000}s — continuing without it.`,
+          );
           clearInterval(interval);
         }
-      }, 1000);
+      }, PUTER_POLL_MS);
     })();
 
     return initializationPromise;

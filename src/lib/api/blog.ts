@@ -43,7 +43,7 @@ function parseRSS(xml: string): BlogPost[] {
 
   match = itemRegex.exec(xml);
   while (match !== null) {
-    const block = match[1];
+    const block = match[1] ?? '';
     const title = extractTag(block, 'title');
     const link = extractTag(block, 'link');
     const pubDate = extractTag(block, 'pubDate');
@@ -63,8 +63,8 @@ function extractTag(xml: string, tag: string): string {
   const cdataMatch = xml.match(
     new RegExp(`<${tag}><!\\[CDATA\\[([\\s\\S]*?)\\]\\]></${tag}>`),
   );
-  if (cdataMatch) return cdataMatch[1].trim();
+  if (cdataMatch) return cdataMatch[1]!.trim();
 
   const simpleMatch = xml.match(new RegExp(`<${tag}>([\\s\\S]*?)</${tag}>`));
-  return simpleMatch ? simpleMatch[1].trim() : '';
+  return simpleMatch ? simpleMatch[1]!.trim() : '';
 }

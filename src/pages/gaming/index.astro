@@ -11,7 +11,7 @@ import CONFIG from '../../lib/config';
 let db: any = {};
 try {
   const raw = await fs.readFile(
-    path.resolve('./src/data/generated/games.json'),
+    path.resolve('./src/content/generated/games.json'),
     'utf-8',
   );
   db = JSON.parse(raw);
@@ -106,12 +106,12 @@ const chessPlatforms = [
   <CommandPalette />
   <main class="mx-auto max-w-[var(--content-max-width)] px-6 py-12 relative">
     <!-- Decorative glow -->
-    <div class="absolute top-0 right-0 w-72 h-72 bg-violet-500/6 rounded-full blur-3xl pointer-events-none"></div>
+    <div class="absolute top-0 right-0 w-72 h-72 bg-[var(--primary-faint)] rounded-full blur-3xl pointer-events-none"></div>
 
     <!-- Header -->
     <div class="mb-12">
-      <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-violet-500/10 border border-violet-500/20 text-xs text-violet-300/80 mb-6">
-        <span class="h-1.5 w-1.5 rounded-full bg-violet-400 animate-pulse"></span>
+      <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[var(--primary-muted)] border border-[var(--primary-subtle)] text-xs text-[var(--primary-lighter)] mb-6">
+        <span class="h-1.5 w-1.5 rounded-full bg-[var(--primary-light)] animate-pulse"></span>
         GAMING Drive
       </div>
       <h1 class="text-4xl sm:text-5xl font-bold text-white mb-3" style="font-family: 'Outfit', sans-serif;">Gaming Stats</h1>
@@ -188,7 +188,7 @@ const chessPlatforms = [
                   <img src={game.iconUrl} alt={game.name} class="w-8 h-8 rounded absolute -top-4 right-4 shadow-lg border border-white/10" />
                 )}
                 <h3 class="font-semibold text-sm text-white truncate pr-10">{game.name}</h3>
-                <p class="text-xs text-violet-400 font-medium mt-1">{game.playtimeHours} hrs combined</p>
+                <p class="text-xs text-[var(--primary-light)] font-medium mt-1">{game.playtimeHours} hrs combined</p>
               </div>
             </div>
           ))}
@@ -208,10 +208,10 @@ const chessPlatforms = [
     <h2 class="text-xl font-bold text-white mb-6" style="font-family: 'Outfit', sans-serif;">Gaming Platforms</h2>
     <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
       {chessPlatforms.map((p) => (
-        <div class="glass p-6 border border-white/5 hover:border-violet-500/20 transition-colors">
+        <div class="glass p-6 border border-white/5 hover:border-[var(--primary-subtle)] transition-colors">
           <span class="text-3xl mb-4 block drop-shadow-sm">{p.icon}</span>
-          <h3 class="text-lg font-semibold text-white mb-1 hover:text-violet-400 transition-colors">{p.name}</h3>
-          <p class="text-sm text-violet-400 font-medium mb-3">{p.handle}</p>
+          <h3 class="text-lg font-semibold text-white mb-1 hover:text-[var(--primary-light)] transition-colors">{p.name}</h3>
+          <p class="text-sm text-[var(--primary-light)] font-medium mb-3">{p.handle}</p>
           <p class="text-sm text-white/50 leading-relaxed">{p.description}</p>
         </div>
       ))}

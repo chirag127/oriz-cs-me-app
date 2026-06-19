@@ -74,7 +74,7 @@ function inferParamSizeB(id: string, name: string | undefined): number {
   const haystack = `${id} ${name ?? ''}`;
   // Capture the FIRST size-like token; "480B-A35B" → 480 (total params).
   const match = haystack.match(/(\d+(?:\.\d+)?)\s*[Bb](?![a-zA-Z])/);
-  return match ? Number.parseFloat(match[1]) : 0;
+  return match ? Number.parseFloat(match[1]!) : 0;
 }
 
 function inferSpeed(paramSizeB: number): 'fast' | 'medium' | 'slow' {

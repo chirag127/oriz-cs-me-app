@@ -1,0 +1,22 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://me.oriz.in/schemas/testimonials.schema.json",
+  "title": "Testimonials",
+  "description": "LinkedIn recommendations and testimonials (publicly visible only).",
+  "type": "array",
+  "items": {
+    "type": "object",
+    "required": ["name", "role", "company", "relationship", "date", "quote", "linkedinUrl"],
+    "additionalProperties": false,
+    "properties": {
+      "name":         { "type": "string" },
+      "role":         { "type": "string" },
+      "company":      { "type": "string" },
+      "relationship": { "type": "string" },
+      "date":         { "type": "string" },
+      "quote":        { "type": "string" },
+      "linkedinUrl":  { "type": "string", "format": "uri" },
+      "avatarUrl":    { "type": "string", "format": "uri" }
+    }
+  }
+}

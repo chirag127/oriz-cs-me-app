@@ -1,7 +1,7 @@
 ---
 import Layout from '../../layouts/Layout.astro';
 import CommandPalette from '../../components/CommandPalette.astro';
-import { projects } from '../../data/resume';
+import { projects } from '../../content';
 
 const featuredProjects = projects.filter((p) => p.featured);
 const otherProjects = projects.filter((p) => !p.featured);

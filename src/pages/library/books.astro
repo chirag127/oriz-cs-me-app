@@ -9,7 +9,7 @@ let db = { read: [] as any[], reading: [] as any[], wantToRead: [] as any[] };
 
 try {
   const raw = await fs.readFile(
-    path.resolve('./src/data/generated/books.json'),
+    path.resolve('./src/content/generated/books.json'),
     'utf-8',
   );
   db = JSON.parse(raw);

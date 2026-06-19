@@ -94,16 +94,16 @@ function DraggableButton({ onOpen }: { onOpen: () => void }) {
 
   return (
     <div style={style} className="select-none group">
-      <div className="absolute inset-0 bg-amber-500/20 blur-[24px] rounded-full animate-pulse pointer-events-none" />
+      <div className="absolute inset-0 bg-[var(--primary-subtle)] blur-[24px] rounded-full animate-pulse pointer-events-none" />
       <div
         onPointerDown={onPointerDown}
         onPointerMove={onPointerMove}
         onPointerUp={onPointerUp}
-        className="relative flex items-center justify-center gap-2 px-5 py-3.5 bg-[#1a1a2e]/95 backdrop-blur-2xl text-white rounded-full font-bold shadow-[0_0_30px_rgba(245,158,11,0.2)] border border-amber-500/30 hover:bg-[#1a1a2e] hover:border-amber-500/50 transition-all overflow-hidden"
+        className="relative flex items-center justify-center gap-2 px-5 py-3.5 bg-[#1a1a2e]/95 backdrop-blur-2xl text-white rounded-full font-bold shadow-[var(--shadow-glow-teal)] border border-[var(--primary-subtle)] hover:bg-[#1a1a2e] hover:border-[var(--primary)] transition-all overflow-hidden"
       >
-        <div className="absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-amber-400/50 to-transparent" />
+        <div className="absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-[var(--primary-light)] to-transparent" />
         <svg
-          className="h-5 w-5 text-amber-400 group-hover:scale-110 transition-transform flex-shrink-0"
+          className="h-5 w-5 text-[var(--primary-light)] group-hover:scale-110 transition-transform flex-shrink-0"
           fill="none"
           viewBox="0 0 24 24"
           stroke="currentColor"
@@ -115,7 +115,7 @@ function DraggableButton({ onOpen }: { onOpen: () => void }) {
             d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09zM18.259 8.715L18 9.75l-.259-1.035a3.375 3.375 0 00-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 002.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 002.455 2.456L21.75 6l-1.036.259a3.375 3.375 0 00-2.455 2.456zM16.894 20.567L16.5 21.75l-.394-1.183a2.25 2.25 0 00-1.423-1.423L13.5 18.75l1.183-.394a2.25 2.25 0 001.423-1.423l.394-1.183.394 1.183a2.25 2.25 0 001.423 1.423l1.183.394-1.183.394a2.25 2.25 0 00-1.423 1.423z"
           />
         </svg>
-        <span className="text-sm uppercase tracking-widest bg-gradient-to-r from-amber-400 to-orange-400 bg-clip-text text-transparent group-hover:from-white group-hover:to-white transition-all hidden sm:inline">
+        <span className="text-sm uppercase tracking-widest bg-gradient-to-r from-[var(--primary)] to-[var(--primary-light)] bg-clip-text text-transparent group-hover:from-white group-hover:to-white transition-all hidden sm:inline">
           Ask Chirag
         </span>
       </div>
@@ -141,7 +141,7 @@ function renderMd(input: string): string {
   h = h.replace(/\*(.+?)\*/g, '<em>$1</em>');
   h = h.replace(
     /\[([^\]]+)\]\(([^)]+)\)/g,
-    '<a href="$2" target="_blank" rel="noopener" style="color:#f59e0b;text-decoration:underline">$1</a>',
+    '<a href="$2" target="_blank" rel="noopener" style="color:var(--primary-light);text-decoration:underline">$1</a>',
   );
   h = h.replace(
     /^[-*] (.+)$/gm,
@@ -241,12 +241,12 @@ function Dropdown({
                     setOpen(false);
                   }}
                   className={`w-full px-3 py-2 text-left hover:bg-white/5 transition-colors group/opt ${
-                    value === opt.value ? 'bg-amber-500/10' : ''
+                    value === opt.value ? 'bg-[var(--primary-muted)]' : ''
                   }`}
                 >
                   <div className="flex items-center justify-between gap-2">
                     <div
-                      className={`text-sm flex items-center gap-1.5 ${value === opt.value ? 'text-amber-400' : 'text-white/80'}`}
+                      className={`text-sm flex items-center gap-1.5 ${value === opt.value ? 'text-[var(--primary-light)]' : 'text-white/80'}`}
                     >
                       {opt.label}
                     </div>
@@ -297,10 +297,10 @@ function StepIndicator({
   return (
     <div className="flex flex-col gap-1.5 py-1">
       <div
-        className="flex items-center gap-2 text-[11px] text-amber-400 font-medium transition-all duration-200"
+        className="flex items-center gap-2 text-[11px] text-[var(--primary-light)] font-medium transition-all duration-200"
         style={{ animation: 'fadeIn 0.2s ease-out forwards' }}
       >
-        <div className="flex-shrink-0 w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse shadow-[0_0_8px_rgba(245,158,11,0.5)]" />
+        <div className="flex-shrink-0 w-1.5 h-1.5 rounded-full bg-[var(--primary-light)] animate-pulse shadow-[var(--shadow-glow-teal)]" />
         <span className="truncate">{lastStep}</span>
       </div>
     </div>
@@ -359,13 +359,13 @@ interface Message {
   role: 'user' | 'assistant';
   content: string;
   timestamp: string;
-  model?: string;
-  intent?: string;
-  confidence?: number;
-  toolsUsed?: string[];
-  tier?: string;
-  steps?: string[];
-  streaming?: boolean;
+  model?: string | undefined;
+  intent?: string | undefined;
+  confidence?: number | undefined;
+  toolsUsed?: string[] | undefined;
+  tier?: string | undefined;
+  steps?: string[] | undefined;
+  streaming?: boolean | undefined;
 }
 
 const SUGGESTED = [
@@ -662,7 +662,7 @@ function ChatPanel({ onClose }: { onClose: () => void }) {
         if (chunk.type === 'step') {
           setMessages((prev) => {
             const updated = [...prev];
-            const msg = { ...updated[assistantIdx] };
+            const msg = { ...updated[assistantIdx]! };
             msg.steps = [...(msg.steps || []), chunk.content];
             updated[assistantIdx] = msg;
             return updated;
@@ -670,7 +670,7 @@ function ChatPanel({ onClose }: { onClose: () => void }) {
         } else if (chunk.type === 'token') {
           setMessages((prev) => {
             const updated = [...prev];
-            const msg = { ...updated[assistantIdx] };
+            const msg = { ...updated[assistantIdx]! };
             msg.content += chunk.content;
             updated[assistantIdx] = msg;
             return updated;
@@ -730,7 +730,7 @@ function ChatPanel({ onClose }: { onClose: () => void }) {
         } else if (chunk.type === 'error') {
           setMessages((prev) => {
             const updated = [...prev];
-            const msg = { ...updated[assistantIdx] };
+            const msg = { ...updated[assistantIdx]! };
             msg.content = chunk.content;
             msg.streaming = false;
             updated[assistantIdx] = msg;
@@ -742,7 +742,7 @@ function ChatPanel({ onClose }: { onClose: () => void }) {
       console.error('Agent error:', e);
       setMessages((prev) => {
         const updated = [...prev];
-        const msg = { ...updated[assistantIdx] };
+        const msg = { ...updated[assistantIdx]! };
         msg.content = 'Unavailable.';
         msg.streaming = false;
         updated[assistantIdx] = msg;
@@ -780,7 +780,7 @@ function ChatPanel({ onClose }: { onClose: () => void }) {
       onClick={onClose}
     >
       <div
-        className="w-full max-w-4xl h-[85vh] min-h-[400px] max-h-[850px] rounded-2xl bg-[#12121e]/95 backdrop-blur-3xl border border-white/10 shadow-[0_0_80px_rgba(245,158,11,0.12)] flex overflow-hidden"
+        className="w-full max-w-4xl h-[85vh] min-h-[400px] max-h-[850px] rounded-2xl bg-[#12121e]/95 backdrop-blur-3xl border border-white/10 shadow-[var(--shadow-glow-teal)] flex overflow-hidden"
         onClick={(e) => e.stopPropagation()}
       >
         {/* History Sidebar */}
@@ -814,7 +814,7 @@ function ChatPanel({ onClose }: { onClose: () => void }) {
               <button
                 type="button"
                 onClick={handleNewChat}
-                className="w-full flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg text-xs font-medium text-amber-400 bg-amber-500/10 border border-amber-500/20 hover:bg-amber-500/20 transition-colors"
+                className="w-full flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg text-xs font-medium text-[var(--primary-light)] bg-[var(--primary-muted)] border border-[var(--primary-subtle)] hover:bg-[var(--primary-subtle)] transition-colors"
               >
                 <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
@@ -835,7 +835,7 @@ function ChatPanel({ onClose }: { onClose: () => void }) {
                     onClick={() => handleRestoreSession(s)}
                     className={`w-full text-left px-3 py-2 rounded-lg text-xs truncate transition-colors ${
                       s.id === currentSessionId
-                        ? 'text-amber-400 bg-amber-500/10'
+                        ? 'text-[var(--primary-light)] bg-[var(--primary-muted)]'
                         : 'text-white/70 hover:bg-white/5'
                     }`}
                   >
@@ -862,7 +862,7 @@ function ChatPanel({ onClose }: { onClose: () => void }) {
         )}
 
         <div className="flex-1 flex flex-col min-w-0">
-          <div className="flex items-center justify-between px-4 py-3 border-b border-white/10 bg-gradient-to-r from-amber-500/10 to-orange-500/5">
+          <div className="flex items-center justify-between px-4 py-3 border-b border-white/10 bg-gradient-to-r from-[var(--primary-muted)] to-[var(--primary-faint)]">
             <div className="flex items-center gap-3">
               <button
                 type="button"
@@ -926,7 +926,7 @@ function ChatPanel({ onClose }: { onClose: () => void }) {
           <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-6">
             {messages.length === 0 && (
               <div className="flex flex-col items-center justify-center h-full text-center space-y-8">
-                <div className="h-20 w-20 rounded-3xl bg-[#1a1a2e] border border-amber-500/30 flex items-center justify-center text-4xl shadow-xl shadow-amber-500/10 rotate-3">
+                <div className="h-20 w-20 rounded-3xl bg-[#1a1a2e] border border-[var(--primary-subtle)] flex items-center justify-center text-4xl shadow-xl shadow-[var(--shadow-glow-teal)] rotate-3">
                   ✨
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 w-full max-w-lg">
@@ -949,7 +949,7 @@ function ChatPanel({ onClose }: { onClose: () => void }) {
                 className={`flex gap-4 ${m.role === 'user' ? 'justify-end' : ''}`}
               >
                 {m.role === 'assistant' && (
-                  <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center text-white shrink-0 mt-1">
+                  <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-[var(--primary)] to-[var(--primary-dark)] flex items-center justify-center text-white shrink-0 mt-1">
                     AI
                   </div>
                 )}
@@ -957,7 +957,7 @@ function ChatPanel({ onClose }: { onClose: () => void }) {
                   className={`max-w-[85%] space-y-2 ${m.role === 'user' ? 'text-right' : ''}`}
                 >
                   <div
-                    className={`px-4 py-3 rounded-2xl border text-sm leading-relaxed ${m.role === 'user' ? 'bg-amber-500/10 border-amber-500/20 text-white' : 'bg-white/[0.03] border-white/5 text-white/90'}`}
+                    className={`px-4 py-3 rounded-2xl border text-sm leading-relaxed ${m.role === 'user' ? 'bg-[var(--primary-muted)] border-[var(--primary-subtle)] text-white' : 'bg-white/[0.03] border-white/5 text-white/90'}`}
                   >
                     <div
                       dangerouslySetInnerHTML={{ __html: renderMd(m.content) }}
@@ -988,7 +988,7 @@ function ChatPanel({ onClose }: { onClose: () => void }) {
 
           <div className="p-4 sm:p-6 bg-[#0a0a14] border-t border-white/5">
             {(!firebaseUser || !puterUser) && (
-              <div className="mb-4 p-4 rounded-2xl bg-gradient-to-br from-amber-500/10 to-orange-500/5 border border-amber-500/20 flex flex-col sm:flex-row items-center justify-between gap-4 shadow-[0_0_20px_rgba(245,158,11,0.05)]">
+              <div className="mb-4 p-4 rounded-2xl bg-gradient-to-br from-[var(--primary-muted)] to-[var(--primary-faint)] border border-[var(--primary-subtle)] flex flex-col sm:flex-row items-center justify-between gap-4 shadow-[var(--shadow-glow-teal)]">
                 <div className="flex flex-col items-start gap-1">
                   <div className="text-xs font-bold text-white/90">
                     {!firebaseUser && !puterUser
@@ -1009,7 +1009,7 @@ function ChatPanel({ onClose }: { onClose: () => void }) {
                   type="button"
                   onClick={handleSignIn}
                   disabled={signingIn}
-                  className="px-6 py-2.5 rounded-xl bg-gradient-to-r from-amber-400 to-orange-500 text-black text-[11px] font-bold uppercase tracking-wider disabled:opacity-50 hover:scale-105 active:scale-95 transition-all shadow-lg shadow-amber-500/20"
+                  className="px-6 py-2.5 rounded-xl bg-gradient-to-r from-[var(--primary)] to-[var(--primary-light)] text-black text-[11px] font-bold uppercase tracking-wider disabled:opacity-50 hover:scale-105 active:scale-95 transition-all shadow-lg shadow-[var(--shadow-glow-teal)]"
                 >
                   {signingIn
                     ? `Connecting...`
@@ -1033,7 +1033,7 @@ function ChatPanel({ onClose }: { onClose: () => void }) {
               <button
                 type="submit"
                 disabled={loading || !input.trim()}
-                className="absolute right-2 top-2 bottom-2 px-5 rounded-xl bg-gradient-to-br from-amber-400 to-orange-500 text-black font-bold text-sm disabled:opacity-50"
+                className="absolute right-2 top-2 bottom-2 px-5 rounded-xl bg-gradient-to-br from-[var(--primary)] to-[var(--primary-light)] text-black font-bold text-sm disabled:opacity-50"
               >
                 Send
               </button>

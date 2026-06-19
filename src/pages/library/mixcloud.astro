@@ -9,7 +9,7 @@ import * as path from 'node:path';
 let db: any = { mixcloud: { user: null, cloudcasts: [] } };
 try {
   const raw = await fs.readFile(
-    path.resolve('./src/data/generated/music-platforms.json'),
+    path.resolve('./src/content/generated/music-platforms.json'),
     'utf-8',
   );
   db = JSON.parse(raw);

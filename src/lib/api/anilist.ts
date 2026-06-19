@@ -105,11 +105,11 @@ export async function fetchAniListAnime() {
     const status = list.status; // CURRENT, COMPLETED, PAUSED, DROPPED, PLANNING
     const mapped = list.entries.map((e: any) => mapEntry(e, status));
 
-    if (status === 'CURRENT') result.watching.push(...mapped);
-    if (status === 'COMPLETED') result.completed.push(...mapped);
-    if (status === 'PAUSED') result.paused.push(...mapped);
-    if (status === 'DROPPED') result.dropped.push(...mapped);
-    if (status === 'PLANNING') result.planning.push(...mapped);
+    if (status === 'CURRENT') result.watching!.push(...mapped);
+    if (status === 'COMPLETED') result.completed!.push(...mapped);
+    if (status === 'PAUSED') result.paused!.push(...mapped);
+    if (status === 'DROPPED') result.dropped!.push(...mapped);
+    if (status === 'PLANNING') result.planning!.push(...mapped);
   }
 
   return result;

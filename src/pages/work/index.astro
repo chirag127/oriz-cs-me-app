@@ -1,5 +1,5 @@
 ---
-import { experience, certifications, education, honors, projects, skills } from '../../data/resume';
+import { experience, certifications, education, honors, projects, skills } from '../../content';
 import Layout from '../../layouts/Layout.astro';
 import CommandPalette from '../../components/CommandPalette.astro';
 
@@ -11,13 +11,13 @@ const totalCredentials = education.length + honors.length;
 <Layout title="Work Drive" description="Career timeline, skills, projects, education — Chirag Singhal">
   <CommandPalette />
   <main class="relative mx-auto max-w-[var(--content-max-width)] px-6 py-12">
-    <div class="absolute top-0 right-0 w-96 h-96 bg-teal-500/5 rounded-full blur-[120px] pointer-events-none"></div>
-    <div class="absolute bottom-40 left-0 w-64 h-64 bg-violet-500/5 rounded-full blur-[100px] pointer-events-none"></div>
+    <div class="absolute top-0 right-0 w-96 h-96 bg-[var(--primary-faint)] rounded-full blur-[120px] pointer-events-none"></div>
+    <div class="absolute bottom-40 left-0 w-64 h-64 bg-[var(--primary-faint)] rounded-full blur-[100px] pointer-events-none"></div>
 
     <!-- Page Header -->
     <div class="mb-10 relative reveal">
-      <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-teal-500/5 border border-teal-500/15 text-[11px] font-semibold text-teal-400 uppercase tracking-wider mb-5">
-        <span class="h-1.5 w-1.5 rounded-full bg-teal-400 animate-pulse"></span>
+      <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[var(--primary-faint)] border border-[var(--primary-subtle)] text-[11px] font-semibold text-[var(--primary-light)] uppercase tracking-wider mb-5">
+        <span class="h-1.5 w-1.5 rounded-full bg-[var(--primary-light)] animate-pulse"></span>
         WORK
       </div>
       <h1 class="text-3xl sm:text-4xl font-black text-white mb-2" style="font-family: var(--font-display, 'Outfit');">Career & Skills</h1>
@@ -33,7 +33,7 @@ const totalCredentials = education.length + honors.length;
           <span class="text-xs text-emerald-400 font-semibold uppercase tracking-widest">Current Role</span>
         </div>
         <h2 class="text-3xl sm:text-4xl font-bold text-white mb-2">{experience[0].title}</h2>
-        <p class="text-xl text-teal-400 font-medium mb-1">{experience[0].company}</p>
+        <p class="text-xl text-[var(--primary-light)] font-medium mb-1">{experience[0].company}</p>
         <p class="text-sm text-white/40 mb-5">{experience[0].location} · {experience[0].date}</p>
         <div class="space-y-2">
           {experience[0].items.slice(0, 3).map((item) => (
@@ -150,12 +150,12 @@ const totalCredentials = education.length + honors.length;
               <span class="text-xs text-white/30">{exp.location}</span>
             </div>
             <h3 class="text-lg font-semibold text-white">{exp.title}</h3>
-            <p class="text-sm text-teal-400 mb-2">{exp.company}</p>
+            <p class="text-sm text-[var(--primary-light)] mb-2">{exp.company}</p>
             <p class="text-sm text-white/40 leading-relaxed">{exp.items[0]}</p>
           </div>
         ))}
       </div>
-      <a href="/work/career" class="inline-flex items-center gap-1.5 text-sm text-teal-400 hover:text-teal-300 mt-6 transition-colors">
+      <a href="/work/career" class="inline-flex items-center gap-1.5 text-sm text-[var(--primary-light)] hover:text-[var(--primary-lighter)] mt-6 transition-colors">
         View full career timeline
         <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" /></svg>
       </a>
@@ -165,23 +165,23 @@ const totalCredentials = education.length + honors.length;
     <div class="glass p-8">
       <div class="flex items-center justify-between mb-5">
         <h2 class="text-lg font-bold text-white">Core Stack</h2>
-        <a href="/work/skills" class="text-xs text-teal-400 hover:text-teal-300 transition-colors">View all →</a>
+        <a href="/work/skills" class="text-xs text-[var(--primary-light)] hover:text-[var(--primary-lighter)] transition-colors">View all →</a>
       </div>
       <div class="flex flex-wrap gap-2">
         {skills.flatMap(s => s.items).slice(0, 20).map((skill) => (
           <span class="px-3 py-1.5 text-xs rounded-lg bg-white/5 text-white/60 border border-white/5 hover:border-white/10 transition-colors">{skill}</span>
         ))}
-        <span class="px-3 py-1.5 text-xs rounded-lg bg-teal-500/10 text-teal-400 border border-teal-500/20">+{totalSkills - 20} more</span>
+        <span class="px-3 py-1.5 text-xs rounded-lg bg-[var(--primary-muted)] text-[var(--primary-light)] border border-[var(--primary-subtle)]">+{totalSkills - 20} more</span>
       </div>
     </div>
 
     <!-- Hire CTA -->
     <div class="mt-12 glass-strong p-10 reveal relative overflow-hidden">
-      <div class="absolute inset-0 bg-gradient-to-br from-teal-500/5 via-transparent to-violet-500/5 pointer-events-none"></div>
+      <div class="absolute inset-0 bg-gradient-to-br from-[var(--primary-faint)] via-transparent to-[var(--primary-faint)] pointer-events-none"></div>
       <div class="relative text-center">
         <h2 class="text-2xl sm:text-3xl font-bold text-white mb-3" style="font-family: var(--font-display, 'Outfit');">Interested in Working Together?</h2>
         <p class="text-white/40 max-w-lg mx-auto mb-6">I'm open to new opportunities in software engineering, AI/ML, and full-stack development. Let's build something great.</p>
-        <a href="/connect" class="inline-flex items-center gap-2 px-8 py-3 rounded-full text-sm font-semibold bg-gradient-to-r from-teal-500 to-violet-500 text-white shadow-lg hover:shadow-teal-500/25 transition-all duration-300 hover:scale-[1.02]">
+        <a href="/connect" class="inline-flex items-center gap-2 px-8 py-3 rounded-full text-sm font-semibold bg-gradient-to-r from-[var(--primary)] to-[var(--primary-light)] text-white shadow-lg hover:shadow-[var(--shadow-glow-teal)] transition-all duration-300 hover:scale-[1.02]">
           <span class="h-2 w-2 rounded-full bg-white animate-pulse"></span>
           Get in Touch
         </a>

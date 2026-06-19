@@ -17,10 +17,12 @@ const currentPath = Astro.url.pathname;
 interface NavLeaf {
   name: string;
   path: string;
+  emoji?: string;
 }
 
 interface NavGroup {
   name: string;
+  emoji?: string;
   // Group has no path of its own — toggling it expands/collapses children.
   children: NavLeaf[];
 }
@@ -28,7 +30,7 @@ interface NavGroup {
 interface NavSection {
   name: string;
   path: string;
-  icon: string;
+  emoji?: string;
   exact?: boolean;
   // Children may be leaves (level 2) or groups (level 2 → level 3).
   children?: Array<NavLeaf | NavGroup>;
@@ -47,121 +49,127 @@ const navSections: NavSection[] = [
   {
     name: 'Home',
     path: '/',
-    icon: 'home',
+    emoji: '🏠',
     exact: true,
   },
   {
     name: 'Work',
     path: '/work',
-    icon: 'briefcase',
+    emoji: '💼',
     children: [
-      { name: 'Career', path: '/work/career' },
-      { name: 'Skills', path: '/work/skills' },
-      { name: 'Projects', path: '/work/projects' },
-      { name: 'Education', path: '/work/education' },
-      { name: 'Certifications', path: '/work/certifications' },
+      { name: 'Career', path: '/work/career', emoji: '🚀' },
+      { name: 'Skills', path: '/work/skills', emoji: '🎯' },
+      { name: 'Projects', path: '/work/projects', emoji: '🏗️' },
+      { name: 'Education', path: '/work/education', emoji: '🎓' },
+      { name: 'Certifications', path: '/work/certifications', emoji: '📜' },
     ],
   },
   {
     name: 'Code',
     path: '/code',
-    icon: 'code',
+    emoji: '💻',
     children: [
-      { name: 'Dashboard', path: '/code' },
-      { name: 'Repositories', path: '/code/repos' },
-      { name: 'NPM', path: '/code/npm' },
-      { name: 'StackOverflow', path: '/code/stackoverflow' },
-      { name: 'Holopin', path: '/code/holopin' },
+      { name: 'Dashboard', path: '/code', emoji: '📊' },
+      { name: 'Repositories', path: '/code/repos', emoji: '📦' },
+      { name: 'NPM', path: '/code/npm', emoji: '📮' },
+      { name: 'StackOverflow', path: '/code/stackoverflow', emoji: '🗨️' },
+      { name: 'Holopin', path: '/code/holopin', emoji: '🏅' },
     ],
   },
   {
     name: 'Library',
     path: '/library',
-    icon: 'book-open',
+    emoji: '📚',
     children: [
-      { name: 'Overview', path: '/library' },
+      { name: 'Overview', path: '/library', emoji: '🗂️' },
       {
         name: 'Movies',
+        emoji: '🎬',
         children: [
-          { name: 'All', path: '/library/movies' },
-          { name: 'Watched', path: '/library/movies-watched' },
-          { name: 'Watchlist', path: '/library/movies-watchlist' },
-          { name: 'Rated', path: '/library/movies-rated' },
+          { name: 'All', path: '/library/movies', emoji: '🎬' },
+          { name: 'Watched', path: '/library/movies-watched', emoji: '👁️' },
+          { name: 'Watchlist', path: '/library/movies-watchlist', emoji: '📋' },
+          { name: 'Rated', path: '/library/movies-rated', emoji: '⭐' },
         ],
       },
       {
         name: 'TV Shows',
+        emoji: '📺',
         children: [
-          { name: 'All', path: '/library/shows' },
-          { name: 'Watched', path: '/library/shows-watched' },
+          { name: 'All', path: '/library/shows', emoji: '📺' },
+          { name: 'Watched', path: '/library/shows-watched', emoji: '👁️' },
         ],
       },
       {
         name: 'Anime',
+        emoji: '🌸',
         children: [
-          { name: 'All', path: '/library/anime' },
-          { name: 'Completed', path: '/library/anime-completed' },
-          { name: 'Plan to watch', path: '/library/anime-plan-to-watch' },
+          { name: 'All', path: '/library/anime', emoji: '🌸' },
+          { name: 'Completed', path: '/library/anime-completed', emoji: '✅' },
+          { name: 'Plan to watch', path: '/library/anime-plan-to-watch', emoji: '📋' },
         ],
       },
       {
         name: 'Books',
+        emoji: '📖',
         children: [
-          { name: 'All', path: '/library/books' },
-          { name: 'Read', path: '/library/books-read' },
-          { name: 'Want to read', path: '/library/books-want-to-read' },
+          { name: 'All', path: '/library/books', emoji: '📖' },
+          { name: 'Read', path: '/library/books-read', emoji: '✅' },
+          { name: 'Want to read', path: '/library/books-want-to-read', emoji: '📋' },
         ],
       },
       {
         name: 'Music',
+        emoji: '🎵',
         children: [
-          { name: 'Overview', path: '/library/music' },
-          { name: 'Recent', path: '/library/music-recent' },
-          { name: 'Top artists', path: '/library/music-top-artists' },
-          { name: 'Top tracks', path: '/library/music-top-tracks' },
-          { name: 'Mixcloud', path: '/library/mixcloud' },
+          { name: 'Overview', path: '/library/music', emoji: '🎵' },
+          { name: 'Recent', path: '/library/music-recent', emoji: '⏱️' },
+          { name: 'Top artists', path: '/library/music-top-artists', emoji: '🎤' },
+          { name: 'Top tracks', path: '/library/music-top-tracks', emoji: '🎶' },
+          { name: 'Mixcloud', path: '/library/mixcloud', emoji: '🎧' },
         ],
       },
-      { name: 'Manga', path: '/library/manga' },
-      { name: 'Podcasts', path: '/library/podcasts' },
-      { name: 'Videos', path: '/library/videos' },
-      { name: 'Twitch', path: '/library/twitch' },
+      { name: 'Manga', path: '/library/manga', emoji: '📕' },
+      { name: 'Podcasts', path: '/library/podcasts', emoji: '🎙️' },
+      { name: 'Videos', path: '/library/videos', emoji: '🎥' },
+      { name: 'Twitch', path: '/library/twitch', emoji: '🎮' },
     ],
   },
   {
     name: 'Gaming',
     path: '/gaming',
-    icon: 'gamepad-2',
+    emoji: '🎮',
   },
   {
     name: 'Me',
     path: '/me',
-    icon: 'user',
+    emoji: '🧑',
     children: [
-      { name: 'Overview', path: '/me' },
-      { name: 'Story', path: '/me/story' },
-      { name: 'Philosophy', path: '/me/philosophy' },
-      { name: 'Interests', path: '/me/interests' },
-      { name: 'Gear', path: '/me/gear' },
-      { name: 'Journal', path: '/me/journal' },
-      { name: 'Finance', path: '/me/finance' },
+      { name: 'Overview', path: '/me', emoji: '👋' },
+      { name: 'Story', path: '/me/story', emoji: '📖' },
+      { name: 'Philosophy', path: '/me/philosophy', emoji: '💭' },
+      { name: 'Interests', path: '/me/interests', emoji: '✨' },
+      { name: 'Gear', path: '/me/gear', emoji: '🛠️' },
+      { name: 'Journal', path: '/me/journal', emoji: '📔' },
+      { name: 'Finance', path: '/me/finance', emoji: '💰' },
     ],
   },
   {
     name: 'Connect',
     path: '/connect',
-    icon: 'link',
+    emoji: '🔗',
     children: [
-      { name: 'Overview', path: '/connect' },
-      { name: 'Contact', path: '/connect/contact' },
+      { name: 'Overview', path: '/connect', emoji: '🌐' },
+      { name: 'Contact', path: '/connect/contact', emoji: '✉️' },
       {
         name: 'Social',
+        emoji: '🌍',
         children: [
-          { name: 'Bluesky', path: '/connect/bluesky' },
-          { name: 'Mastodon', path: '/connect/mastodon' },
-          { name: 'Pixelfed', path: '/connect/pixelfed' },
-          { name: 'Reddit', path: '/connect/reddit' },
-          { name: 'Hacker News', path: '/connect/hackernews' },
+          { name: 'Bluesky', path: '/connect/bluesky', emoji: '🦋' },
+          { name: 'Mastodon', path: '/connect/mastodon', emoji: '🐘' },
+          { name: 'Pixelfed', path: '/connect/pixelfed', emoji: '📸' },
+          { name: 'Reddit', path: '/connect/reddit', emoji: '👽' },
+          { name: 'Hacker News', path: '/connect/hackernews', emoji: '🟧' },
         ],
       },
     ],
@@ -169,11 +177,11 @@ const navSections: NavSection[] = [
   {
     name: 'System',
     path: '/system',
-    icon: 'settings',
+    emoji: '⚙️',
     children: [
-      { name: 'Settings', path: '/system' },
-      { name: 'Changelog', path: '/system/changelog' },
-      { name: 'Admin', path: '/system/admin' },
+      { name: 'Settings', path: '/system', emoji: '⚙️' },
+      { name: 'Changelog', path: '/system/changelog', emoji: '📜' },
+      { name: 'Admin', path: '/system/admin', emoji: '🛡️' },
     ],
   },
 ];
@@ -193,25 +201,6 @@ function anyDescendantActive(node: NavLeaf | NavGroup): boolean {
   if (isGroup(node)) return node.children.some((c) => isActive(c.path));
   return isActive(node.path);
 }
-
-/**
- * Map icon name to Lucide SVG path data.
- * Using inline SVGs to avoid extra dependencies.
- */
-const iconPaths: Record<string, string> = {
-  home: 'M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z M9 22V12h6v10',
-  briefcase:
-    'M16 20V4a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16 M2 10h20 M22 10v10a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V10a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2z',
-  code: 'M16 18l6-6-6-6 M8 6l-6 6 6 6',
-  'book-open':
-    'M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z',
-  'gamepad-2':
-    'M6 11h4 M8 9v4 M15 12h.01 M18 10h.01 M17.32 5H6.68a4 4 0 0 0-3.978 3.59c-.006.052-.01.101-.017.152C2.604 9.416 2 14.456 2 16a3 3 0 0 0 3 3c1 0 1.5-.5 2-1l1.414-1.414A2 2 0 0 1 9.828 16h4.344a2 2 0 0 1 1.414.586L17 18c.5.5 1 1 2 1a3 3 0 0 0 3-3c0-1.545-.604-6.584-.685-7.258-.007-.05-.011-.1-.017-.151A4 4 0 0 0 17.32 5z',
-  user: 'M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2 M12 3a4 4 0 1 0 0 8 4 4 0 0 0 0-8z',
-  link: 'M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71 M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71',
-  settings:
-    'M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.39a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z M12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8z',
-};
 ---
 
 <!-- Sidebar overlay (mobile) -->
@@ -278,7 +267,6 @@ const iconPaths: Record<string, string> = {
     <ul class="space-y-1" role="list">
       {navSections.map((section) => {
         const active = isActive(section.path, section.exact);
-        const iconPath = iconPaths[section.icon] || '';
         const hasChildren = !!section.children && section.children.length > 0;
         const childActive =
           hasChildren && section.children!.some(anyDescendantActive);
@@ -298,25 +286,9 @@ const iconPaths: Record<string, string> = {
               ]}
               aria-current={active ? 'page' : undefined}
             >
-              <svg
-                class:list={[
-                  'h-[18px] w-[18px] flex-shrink-0',
-                  'transition-colors duration-200',
-                  active || childActive
-                    ? 'text-teal-400'
-                    : 'text-white/30 group-hover:text-white/60',
-                ]}
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-                stroke-width="1.5"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              >
-                {iconPath.split(' M').map((seg, i) => (
-                  <path d={i === 0 ? seg : `M${seg}`} />
-                ))}
-              </svg>
+              <span class="text-base leading-none flex-shrink-0" aria-hidden="true">
+                {section.emoji}
+              </span>
               <span class="sidebar-label
                 transition-opacity duration-200">
                 {section.name}
@@ -347,7 +319,7 @@ const iconPaths: Record<string, string> = {
                               ? 'text-white/70'
                               : 'text-white/35 hover:text-white/60 hover:bg-white/[0.02]',
                           ]}>
-                            <span>{child.name}</span>
+                            <span>{child.emoji && <span class="mr-1.5" aria-hidden="true">{child.emoji}</span>}{child.name}</span>
                             <svg
                               class="h-3 w-3 text-white/30
                                 transition-transform duration-200
@@ -379,7 +351,7 @@ const iconPaths: Record<string, string> = {
                                     ]}
                                     aria-current={lActive ? 'page' : undefined}
                                   >
-                                    {leaf.name}
+                                    {leaf.emoji && <span class="mr-1.5" aria-hidden="true">{leaf.emoji}</span>}{leaf.name}
                                   </a>
                                 </li>
                               );
@@ -404,7 +376,7 @@ const iconPaths: Record<string, string> = {
                         ]}
                         aria-current={cActive ? 'page' : undefined}
                       >
-                        {child.name}
+                        {child.emoji && <span class="mr-1.5" aria-hidden="true">{child.emoji}</span>}{child.name}
                       </a>
                     </li>
                   );

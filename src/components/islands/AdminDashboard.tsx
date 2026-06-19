@@ -494,7 +494,7 @@ export default function AdminDashboard() {
                 {queries.slice(0, 5).map((q, i) => (
                   <div key={i} className="flex items-start gap-3">
                     <div className="h-8 w-8 rounded-lg bg-white/5 flex items-center justify-center text-xs text-white/30 shrink-0 mt-0.5">
-                      {(q.userName || '?')[0].toUpperCase()}
+                      {(q.userName || '?')[0]!.toUpperCase()}
                     </div>
                     <div className="min-w-0 flex-1">
                       <p className="text-sm text-white/70 truncate">
@@ -524,7 +524,7 @@ export default function AdminDashboard() {
                 {visitors.slice(0, 5).map((v, i) => (
                   <div key={i} className="flex items-center gap-3">
                     <div className="h-8 w-8 rounded-lg bg-white/5 flex items-center justify-center text-xs text-white/30 shrink-0">
-                      {(v.userName || '?')[0].toUpperCase()}
+                      {(v.userName || '?')[0]!.toUpperCase()}
                     </div>
                     <div className="min-w-0 flex-1">
                       <p className="text-sm text-white/70 truncate">
@@ -586,7 +586,7 @@ export default function AdminDashboard() {
               >
                 <div className="flex items-center gap-3 min-w-0">
                   <div className="h-10 w-10 rounded-xl bg-violet-500/10 flex items-center justify-center text-sm font-bold text-violet-400 shrink-0">
-                    {(chat.userName || '?')[0].toUpperCase()}
+                    {(chat.userName || '?')[0]!.toUpperCase()}
                   </div>
                   <div className="min-w-0">
                     <p className="text-sm font-medium text-white truncate">
@@ -726,7 +726,7 @@ export default function AdminDashboard() {
                       <td className="px-4 py-3 whitespace-nowrap">
                         <div className="flex items-center gap-2">
                           <div className="h-7 w-7 rounded-lg bg-white/5 flex items-center justify-center text-[11px] text-white/30">
-                            {(q.userName || '?')[0].toUpperCase()}
+                            {(q.userName || '?')[0]!.toUpperCase()}
                           </div>
                           <div>
                             <p className="text-xs text-white/60 truncate max-w-[120px]">
@@ -883,7 +883,7 @@ export default function AdminDashboard() {
                               : 'bg-sky-500/10 text-sky-400'
                           }`}
                         >
-                          {(v.userName || '?')[0].toUpperCase()}
+                          {(v.userName || '?')[0]!.toUpperCase()}
                         </div>
                         <span className="text-xs text-white/60">
                           {v.userName || 'Anonymous'}

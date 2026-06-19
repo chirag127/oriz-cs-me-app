@@ -1,7 +1,7 @@
 ---
 import Layout from '../../layouts/Layout.astro';
 import CommandPalette from '../../components/CommandPalette.astro';
-import { socialLinks } from '../../data/social';
+import { socialLinks } from '../../content';
 
 const contactLinks = socialLinks.filter((l) =>
   ['Email', 'GitHub', 'LinkedIn', 'Bluesky', 'Mastodon', 'Reddit'].includes(l.name),

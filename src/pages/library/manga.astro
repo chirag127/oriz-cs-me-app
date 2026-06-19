@@ -8,7 +8,7 @@ import * as path from 'node:path';
 let db: any = { anime: { manga: [] } };
 try {
   const raw = await fs.readFile(
-    path.resolve('./src/data/generated/anime.json'),
+    path.resolve('./src/content/generated/anime.json'),
     'utf-8',
   );
   db = JSON.parse(raw);

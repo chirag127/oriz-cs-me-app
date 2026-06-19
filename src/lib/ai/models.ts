@@ -127,7 +127,7 @@ export const MODEL_CATALOG: ModelInfo[] = [
 export function parseParamSize(str: string): number {
   const match = str.match(/(\d+(\.\d+)?)\s*[Bb]/);
   if (!match) return 0;
-  return parseFloat(match[1]);
+  return parseFloat(match[1]!);
 }
 
 // ─── Daily snapshot loader ───────────────────────────────────────────

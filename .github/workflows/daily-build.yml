@@ -114,63 +114,15 @@ jobs:
           retention-days: 7
 
   fetch-data:
+    # Disabled: data is now synced to Firestore every 6 hours by
+    # sync-firestore.yml, and committed to the repo weekly by
+    # snapshot-weekly.yml. The daily build deploys whatever snapshot is
+    # currently committed. Kept as a no-op gate for the existing dependency
+    # graph; remove once we're sure nothing references it.
     runs-on: ubuntu-latest
     needs: e2e-tests
     steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      - uses: pnpm/action-setup@v4
-        with:
-          version: 10
-
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 22
-          cache: pnpm
-
-      - run: pnpm install --frozen-lockfile
-
-      - name: Fetch API Data
-        continue-on-error: true
-        run: pnpm run fetch-data
-        env:
-          TRAKT_CLIENT_ID: ${{ secrets.TRAKT_CLIENT_ID }}
-          TRAKT_CLIENT_SECRET: ${{ secrets.TRAKT_CLIENT_SECRET }}
-          TRAKT_ACCESS_TOKEN: ${{ secrets.TRAKT_ACCESS_TOKEN }}
-          TRAKT_REFRESH_TOKEN: ${{ secrets.TRAKT_REFRESH_TOKEN }}
-          TMDB_API_KEY: ${{ secrets.TMDB_API_KEY }}
-          TMDB_READ_ACCESS_TOKEN: ${{ secrets.TMDB_READ_ACCESS_TOKEN }}
-          LASTFM_API_KEY: ${{ secrets.LASTFM_API_KEY }}
-          SPOTIFY_CLIENT_ID: ${{ secrets.SPOTIFY_CLIENT_ID }}
-          SPOTIFY_CLIENT_SECRET: ${{ secrets.SPOTIFY_CLIENT_SECRET }}
-          SPOTIFY_REFRESH_TOKEN: ${{ secrets.SPOTIFY_REFRESH_TOKEN }}
-          STEAM_API_KEY: ${{ secrets.STEAM_API_KEY }}
-          STEAM_USER_ID: ${{ secrets.STEAM_USER_ID }}
-          GITHUB_TOKEN: ${{ secrets.GH_PAT }}
-          GH_PAT: ${{ secrets.GH_PAT }}
-          GH_USERNAME: chirag127
-          WAKATIME_API_KEY: ${{ secrets.WAKATIME_API_KEY }}
-          WAKATIME_EMBED_JSON_URL: ${{ secrets.WAKATIME_EMBED_JSON_URL }}
-          DEVTO_API_KEY: ${{ secrets.DEVTO_API_KEY }}
-          BLUESKY_HANDLE: ${{ secrets.BLUESKY_HANDLE }}
-          BLUESKY_APP_PASSWORD: ${{ secrets.BLUESKY_APP_PASSWORD }}
-          YOUTUBE_API_KEY: ${{ secrets.YOUTUBE_API_KEY }}
-          YOUTUBE_CHANNEL_ID: ${{ secrets.YOUTUBE_CHANNEL_ID }}
-          FIREBASE_PROJECT_ID: ${{ secrets.FIREBASE_PROJECT_ID }}
-          FIREBASE_CLIENT_EMAIL: ${{ secrets.FIREBASE_CLIENT_EMAIL }}
-          FIREBASE_PRIVATE_KEY: ${{ secrets.FIREBASE_PRIVATE_KEY }}
-
-      - name: Commit and Push Data Files
-        continue-on-error: true
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add public/data/*.json public/posters/ || true
-          git diff --staged --quiet || (git commit -m "chore: update data files and posters [skip ci]" && git push)
-        env:
-          GITHUB_TOKEN: ${{ secrets.GH_PAT }}
+      - run: echo "fetch-data moved to sync-firestore.yml + snapshot-weekly.yml"
 
   build-and-deploy:
     runs-on: ubuntu-latest

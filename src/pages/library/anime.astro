@@ -9,7 +9,7 @@ let db: any = { anime: { watching: [], completed: [] } };
 
 try {
   const raw = await fs.readFile(
-    path.resolve('./src/data/generated/anime.json'),
+    path.resolve('./src/content/generated/anime.json'),
     'utf-8',
   );
   db = JSON.parse(raw);

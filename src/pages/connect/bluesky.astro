@@ -9,7 +9,7 @@ import * as path from 'node:path';
 let db: any = { bluesky: null };
 try {
   const raw = await fs.readFile(
-    path.resolve('./src/data/generated/social.json'),
+    path.resolve('./src/content/generated/social.json'),
     'utf-8',
   );
   db = JSON.parse(raw);
