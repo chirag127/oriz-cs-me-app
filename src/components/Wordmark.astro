@@ -1,0 +1,85 @@
+---
+/*
+ * Wordmark — `oriz / me` for the v2 datasheet site.
+ *
+ * IBM Plex Sans Condensed 700, with the `oriz` half tracked +0.05em and the
+ * `/ me` half in `--archival`. NO italic, NO lowercase. Per the brief:
+ * the forward slash is the canonical family separator (also `oriz / pdf-tools`).
+ *
+ * This is NOT the same as the home anchor's serif wordmark with the strike-
+ * through `z` — oriz-me's display face is the deliberate divergence. Same
+ * brand family, different cut.
+ */
+
+interface Props {
+  /** Sub-section name after the `/` separator. Defaults to 'me'. */
+  subtitle?: string;
+  /** Display size in CSS pixels. Defaults to 22 (header lockup). */
+  size?: number;
+  /** Wrap the mark in an <a href="/"> — default true on every page except `/`. */
+  href?: string | null;
+  /** Render-only mode for the masthead (no link wrapper). */
+  asHeading?: boolean;
+}
+
+const {
+  subtitle = 'me',
+  size = 22,
+  href = null,
+  asHeading = false,
+} = Astro.props;
+const Tag = asHeading ? 'h1' : ('div' as const);
+---
+
+{
+  href ? (
+    <a class="wordmark-link" href={href} aria-label={`oriz / ${subtitle}`}>
+      <Tag class="wordmark" style={`--wm-size: ${size}px;`}>
+        <span class="wordmark-mark">oriz</span>
+        <span class="wordmark-sep" aria-hidden="true">/</span>
+        <span class="wordmark-sub">{subtitle}</span>
+      </Tag>
+    </a>
+  ) : (
+    <Tag class="wordmark" style={`--wm-size: ${size}px;`}>
+      <span class="wordmark-mark">oriz</span>
+      <span class="wordmark-sep" aria-hidden="true">/</span>
+      <span class="wordmark-sub">{subtitle}</span>
+    </Tag>
+  )
+}
+
+<style>
+  .wordmark-link {
+    display: inline-block;
+    color: inherit;
+    text-decoration: none;
+  }
+  .wordmark {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 0.32em;
+    margin: 0;
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: var(--wm-size, 22px);
+    line-height: 1;
+    letter-spacing: -0.01em;
+    color: var(--ink);
+  }
+  .wordmark-mark {
+    /* `oriz` half tracked +0.05em per the brief */
+    letter-spacing: 0.05em;
+    color: var(--ink);
+  }
+  .wordmark-sep {
+    color: var(--ink-soft);
+    font-weight: 700;
+    letter-spacing: 0;
+  }
+  .wordmark-sub {
+    color: var(--archival);
+    letter-spacing: -0.005em;
+    font-weight: 700;
+  }
+</style>

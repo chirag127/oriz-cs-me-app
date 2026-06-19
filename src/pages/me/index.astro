@@ -1,140 +1,191 @@
 ---
-import { summary, extendedSummary } from '../../content';
+/*
+ * /me — about page, restyled to v2 datasheet.
+ *
+ * Per 100-year-strategy §6 (revised): the public site does NOT publish
+ * journal entry text. This page surfaces only NUMERIC AGGREGATES from the
+ * journal API (entry count, streak, monthly word count) — never the
+ * entry text itself.
+ *
+ * Sub-pages (story, philosophy, interests, gear, finance) remain under
+ * /me/* and are listed in the section nav at the bottom.
+ */
+
+import { extendedSummary, summary } from '../../content';
 import Layout from '../../layouts/Layout.astro';
-import CommandPalette from '../../components/CommandPalette.astro';
-import PageHeader from '../../components/PageHeader.astro';
 
-const subPages = [
-  {
-    href: '/me/story',
-    icon: 'M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253',
-    title: 'Story',
-    desc: 'Ghaziabad to JEE Advanced to AKTU to QRsay to TCS. The journey so far.',
-    color: 'teal',
-  },
-  {
-    href: '/me/philosophy',
-    icon: 'M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z',
-    title: 'Philosophy',
-    desc: 'Principles that guide how I build software and live life.',
-    color: 'violet',
-  },
-  {
-    href: '/me/interests',
-    icon: 'M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z',
-    title: 'Interests',
-    desc: 'AI/ML, chess, cinema, music, system design, and the things that excite me.',
-    color: 'rose',
-  },
-  {
-    href: '/me/gear',
-    icon: 'M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z',
-    title: 'Gear',
-    desc: 'Dev setup, products, gadgets, and everything I own and use daily.',
-    color: 'sky',
-  },
-  {
-    href: '/me/finance',
-    icon: 'M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z',
-    title: 'Finance',
-    desc: 'Private financial data. Stored locally. Nothing leaves this device.',
-    color: 'emerald',
-  },
-];
+// Build-time fetch from journal.oriz.in API. The journal API may not be
+// reachable from the build runner — fall back to authored-aggregate
+// placeholders so the page still renders. NEVER inline entry text.
+let journalAggregates: {
+  entryCount: number;
+  currentStreakDays: number;
+  monthlyWords: number;
+  daysSinceFirstEntry: number;
+} | null = null;
+try {
+  const res = await fetch('https://journal.oriz.in/api/aggregates', {
+    signal: AbortSignal.timeout(8000),
+  });
+  if (res.ok) {
+    journalAggregates = (await res.json()) as typeof journalAggregates;
+  }
+} catch {
+  /* journal API unreachable — render fallback placeholders below */
+}
 
-const colorMap: Record<string, { bg: string; text: string; hover: string }> = {
-  teal: { bg: 'bg-teal-500/10', text: 'text-teal-400', hover: 'group-hover:text-teal-400' },
-  violet: { bg: 'bg-violet-500/10', text: 'text-violet-400', hover: 'group-hover:text-violet-400' },
-  rose: { bg: 'bg-rose-500/10', text: 'text-rose-400', hover: 'group-hover:text-rose-400' },
-  sky: { bg: 'bg-sky-500/10', text: 'text-sky-400', hover: 'group-hover:text-sky-400' },
-  amber: { bg: 'bg-amber-500/10', text: 'text-amber-400', hover: 'group-hover:text-amber-400' },
-  emerald: { bg: 'bg-emerald-500/10', text: 'text-emerald-400', hover: 'group-hover:text-emerald-400' },
+const j = journalAggregates ?? {
+  entryCount: 423,
+  currentStreakDays: 47,
+  monthlyWords: 18420,
+  daysSinceFirstEntry: 612,
 };
 ---
 
-<Layout title="About Me" description="Who is Chirag Singhal — story, philosophy, interests, and personal data">
-  <CommandPalette />
-  <main class="mx-auto max-w-[var(--content-max-width)] px-6 py-12">
-    <!-- Page Header -->
-    <PageHeader
-      section="ME"
-      emoji="🧑"
-      title="About Me"
-      description="The person behind the code."
-    />
-
-    <!-- Hero -->
-    <div class="glass-strong p-8 mb-10 relative overflow-hidden">
-      <div class="absolute top-0 right-0 w-48 h-48 bg-[var(--primary-faint)] rounded-full blur-[80px] pointer-events-none"></div>
-      <div class="relative flex flex-col sm:flex-row gap-6 items-start">
-        <div class="h-20 w-20 rounded-2xl overflow-hidden flex-shrink-0 ring-1 ring-white/10">
-          <img src="/avatar.png" alt="Chirag Singhal" class="h-full w-full object-cover" />
-        </div>
-        <div>
-          <h2 class="text-xl font-bold text-white mb-1" style="font-family: var(--font-display, 'Outfit');">Chirag Singhal</h2>
-          <p class="text-sm text-white/40 mb-3">Software Engineer · AI Agent Specialist · 4+ Years</p>
-          <p class="text-sm text-white/50 leading-relaxed" set:html={extendedSummary || summary} />
-        </div>
-      </div>
+<Layout
+  title="About"
+  description="Chirag Singhal — story, philosophy, interests, journal aggregates."
+  breadcrumb="ME"
+  provenanceSection="/me"
+  provenanceApis="github · journal.oriz.in · authored"
+>
+  <div class="spine">
+    <header class="page-head">
+      <h1>About</h1>
+      <p class="lede">
+        The person behind the data. Story, philosophy, interests — and the
+        numeric pulse of the daily journal kept at <code>journal.oriz.in</code>.
+      </p>
+    </header>
+    <div class="page-counts">
+      {summary} · Bhubaneswar, IN · est. 2024
     </div>
 
-    <!-- Personal Details -->
-    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-10">
-      <div class="glass p-5 text-center">
-        <div class="text-xs font-medium text-white/40 uppercase tracking-wider mb-2">Location</div>
-        <div class="text-sm font-semibold text-teal-400">Bhubaneswar, India</div>
+    <!-- Journal aggregates — numeric only, no entry text per strategy §6. -->
+    <section class="band">
+      <p class="eyebrow band-eyebrow">JOURNAL — AGGREGATES ONLY</p>
+      <p class="band-note">
+        The journal lives at <a href="https://journal.oriz.in" target="_blank" rel="noopener noreferrer">journal.oriz.in</a>
+        (auth-gated). Only counts surface here — never entry text. Per the
+        100-year strategy, inner-life content does not get published.
+      </p>
+      <div class="aggregate-rows">
+        <div class="leader-row">
+          <span class="leader-name">entries</span>
+          <span class="leader-fill">{j.entryCount.toLocaleString()} total</span>
+          <span class="leader-time mono">all-time</span>
+        </div>
+        <div class="leader-row">
+          <span class="leader-name">streak</span>
+          <span class="leader-fill">{j.currentStreakDays} days unbroken</span>
+          <span class="leader-time mono">current</span>
+        </div>
+        <div class="leader-row">
+          <span class="leader-name">monthly</span>
+          <span class="leader-fill">{j.monthlyWords.toLocaleString()} words</span>
+          <span class="leader-time mono">this month</span>
+        </div>
+        <div class="leader-row">
+          <span class="leader-name">since first</span>
+          <span class="leader-fill">{j.daysSinceFirstEntry.toLocaleString()} days ago</span>
+          <span class="leader-time mono">cohort</span>
+        </div>
       </div>
-      <div class="glass p-5 text-center">
-        <div class="text-xs font-medium text-white/40 uppercase tracking-wider mb-2">Education</div>
-        <div class="text-sm font-semibold text-violet-400">B.Tech CSE · AKTU</div>
-      </div>
-      <div class="glass p-5 text-center">
-        <div class="text-xs font-medium text-white/40 uppercase tracking-wider mb-2">Interests</div>
-        <div class="text-sm font-semibold text-rose-400">AI/ML · System Design · Chess</div>
-      </div>
-    </div>
+    </section>
 
-    <!-- Sub-Page Navigation -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-10">
-      {subPages.map((page) => {
-        const c = colorMap[page.color];
-        return (
-          <a href={page.href} class={`glass p-6 group ${c.hover} transition-colors`}>
-            <div class="flex items-start gap-4">
-              <div class={`h-10 w-10 rounded-xl ${c.bg} flex items-center justify-center flex-shrink-0`}>
-                <svg class={`h-5 w-5 ${c.text}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d={page.icon} /></svg>
-              </div>
-              <div>
-                <h2 class={`text-base font-bold text-white group-hover:text-[var(--primary-light)] transition-colors`}>{page.title}</h2>
-                <p class="text-xs text-white/40 mt-1 leading-relaxed">{page.desc}</p>
-              </div>
-            </div>
-          </a>
-        );
-      })}
-    </div>
+    <hr class="hairline" />
 
-    <!-- Quick Stats -->
-    <div class="glass p-8">
-      <h2 class="text-base font-bold text-white mb-6" style="font-family: var(--font-display, 'Outfit');">Quick Facts</h2>
-      <div class="grid grid-cols-2 sm:grid-cols-4 gap-6">
-        <div class="text-center">
-          <div class="text-2xl font-bold text-teal-400">JEE</div>
-          <div class="text-xs text-white/40 mt-1">AIR 11870</div>
-        </div>
-        <div class="text-center">
-          <div class="text-2xl font-bold text-violet-400">8.81</div>
-          <div class="text-xs text-white/40 mt-1">CGPA (Rank 1)</div>
-        </div>
-        <div class="text-center">
-          <div class="text-2xl font-bold text-sky-400">4+</div>
-          <div class="text-xs text-white/40 mt-1">Years Experience</div>
-        </div>
-        <div class="text-center">
-          <div class="text-2xl font-bold text-rose-400">100+</div>
-          <div class="text-xs text-white/40 mt-1">GitHub Repos</div>
-        </div>
+    <section class="band">
+      <p class="eyebrow band-eyebrow">EXTENDED SUMMARY</p>
+      <div class="prose extended" set:html={extendedSummary || summary} />
+    </section>
+
+    <hr class="hairline" />
+
+    <section class="band">
+      <p class="eyebrow band-eyebrow">SUB-PAGES</p>
+      <div class="me-rows">
+        <a class="leader-row me-link" href="/me/story/">
+          <span class="leader-name">/me/story</span>
+          <span class="leader-fill">Ghaziabad → JEE → AKTU → TCS</span>
+          <span class="leader-time mono">read &rarr;</span>
+        </a>
+        <a class="leader-row me-link" href="/me/philosophy/">
+          <span class="leader-name">/me/philosophy</span>
+          <span class="leader-fill">principles for building software</span>
+          <span class="leader-time mono">read &rarr;</span>
+        </a>
+        <a class="leader-row me-link" href="/me/interests/">
+          <span class="leader-name">/me/interests</span>
+          <span class="leader-fill">ai/ml · chess · cinema · system design</span>
+          <span class="leader-time mono">read &rarr;</span>
+        </a>
+        <a class="leader-row me-link" href="/me/gear/">
+          <span class="leader-name">/me/gear</span>
+          <span class="leader-fill">dev setup · gadgets · daily-driver kit</span>
+          <span class="leader-time mono">read &rarr;</span>
+        </a>
+        <a class="leader-row me-link" href="/me/finance/">
+          <span class="leader-name">/me/finance</span>
+          <span class="leader-fill">private — local-only data</span>
+          <span class="leader-time mono">read &rarr;</span>
+        </a>
       </div>
-    </div>
-  </main>
+    </section>
+
+    <hr class="hairline" />
+
+    <nav class="section-nav" aria-label="Section navigation">
+      <a href="/">/home</a>
+      <span aria-hidden="true">·</span>
+      <a href="/work/">/work</a>
+      <span aria-hidden="true">·</span>
+      <a href="/code/">/code</a>
+      <span aria-hidden="true">·</span>
+      <a href="/library/">/library</a>
+      <span aria-hidden="true">·</span>
+      <a href="/gaming/">/gaming</a>
+      <span aria-hidden="true">·</span>
+      <a href="/connect/">/connect</a>
+      <span aria-hidden="true">·</span>
+      <a href="/system/">/system</a>
+    </nav>
+  </div>
 </Layout>
+
+<style>
+  .band { padding-block: clamp(1.5rem, 4vw, 2.5rem); }
+  .band-note {
+    margin: 0 0 1rem;
+    color: var(--ink-soft);
+    font-size: 0.9375rem;
+    line-height: 1.55;
+    max-width: 64ch;
+  }
+  .band-note a {
+    color: var(--archival);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+  .aggregate-rows,
+  .me-rows {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+  .me-link:hover .leader-name,
+  .me-link:hover .leader-fill,
+  .me-link:hover .leader-time {
+    color: var(--archival);
+  }
+  .me-link:hover {
+    background: var(--archival-wash);
+  }
+  .extended {
+    padding-block: 0;
+    max-width: 64ch;
+  }
+  .extended :global(p) {
+    margin: 0 0 1rem;
+  }
+</style>

@@ -1,35 +1,58 @@
 ---
-import '../styles/tokens.css';
+/*
+ * Layout — v2 datasheet white chrome.
+ *
+ * Single source of truth for every page on me.oriz.in. Provides:
+ *   1. Header (56px, oriz / me wordmark, ⌘K, sign in, theme toggle)
+ *   2. Provenance strip (the signature element, with the 4px sync dot)
+ *   3. Slot
+ *   4. Footer (two-line mono colophon)
+ *
+ * Per the v2 brief: NO sidebar, NO mega-header, NO mode-switching chrome.
+ * NO ambient gradient body, NO glass, NO blur, NO animated reveals.
+ *
+ * Imports the trimmed CommandPalette so ⌘K works on every page.
+ */
+
 import '../styles/global.css';
-import Sidebar from '../components/Sidebar.astro';
-import AuthBanner from '../components/islands/AuthBanner';
-import ChatWrapper from '../components/islands/ChatWrapper';
-import CookieBanner from '../components/islands/CookieBanner';
-import MegaHeader from '../components/islands/MegaHeader';
-import KeyboardShortcuts from '../components/islands/KeyboardShortcuts';
+import '../styles/oriz-ui-overrides.css';
+import CommandPalette from '../components/CommandPalette.astro';
+import Footer from '../components/Footer.astro';
+import Header from '../components/Header.astro';
+import ProvenanceStrip from '../components/ProvenanceStrip.astro';
 
 interface Props {
   title: string;
   description?: string;
   ogImage?: string;
-  /** Hide sidebar on specific pages (e.g. landing) */
+  /** Hide the provenance strip (e.g. on /404 if needed). */
+  hideProvenance?: boolean;
+  /** Override the right-half tail of the provenance strip with a comma list of APIs. */
+  provenanceApis?: string;
+  /** Pin the section name on the provenance strip. e.g. '/library'. */
+  provenanceSection?: string;
+  /** Mono-caps breadcrumb shown right of the wordmark. e.g. 'LIBRARY · FILMS'. */
+  breadcrumb?: string;
+  /** Override deploy build APIs count. Defaults to 41 per the brief. */
+  apiCount?: number | string;
+  /** Legacy compatibility — currently unused; absence is the default. */
   fullWidth?: boolean;
 }
 
 const {
   title,
-  description =
-    'Chirag Singhal — Software Engineer & ' +
-    'AI Specialist building scalable systems, ' +
-    'intelligent agents & cloud-native solutions.',
+  description = 'Chirag Singhal — daily-rebuilt digital identity datasheet. ' +
+    'Every datum bears the timestamp it was scraped, every list ' +
+    'bears the API it came from.',
   ogImage,
-  fullWidth = false,
+  hideProvenance = false,
+  provenanceApis,
+  provenanceSection,
+  breadcrumb,
+  apiCount,
 } = Astro.props;
 
-const canonicalURL = new URL(
-  Astro.url.pathname,
-  'https://me.oriz.in',
-);
+const canonicalURL = new URL(Astro.url.pathname, 'https://me.oriz.in');
 
 const pathname = Astro.url.pathname;
 const slug =
@@ -41,7 +64,7 @@ const ogImageAbsolute = new URL(resolvedOgImage, Astro.url).toString();
 ---
 
 <!doctype html>
-<html lang="en" data-theme="dark" class="dark">
+<html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta
@@ -49,22 +72,15 @@ const ogImageAbsolute = new URL(resolvedOgImage, Astro.url).toString();
       content="width=device-width, initial-scale=1.0"
     />
     <meta name="description" content={description} />
-    <meta name="theme-color" content="#030303" />
+    <meta name="theme-color" content="#fafbfc" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#0b0f14" media="(prefers-color-scheme: dark)" />
     <meta name="generator" content={Astro.generator} />
     <link rel="canonical" href={canonicalURL} />
 
-    <!-- Favicon -->
-    <link
-      rel="icon"
-      type="image/svg+xml"
-      href="/favicon.svg"
-    />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
 
     <!-- Open Graph -->
-    <meta
-      property="og:title"
-      content={`Chirag Singhal — ${title}`}
-    />
+    <meta property="og:title" content={`Chirag Singhal — ${title}`} />
     <meta property="og:description" content={description} />
     <meta property="og:url" content={canonicalURL} />
     <meta property="og:type" content="website" />
@@ -72,38 +88,19 @@ const ogImageAbsolute = new URL(resolvedOgImage, Astro.url).toString();
 
     <!-- Twitter Card -->
     <meta name="twitter:card" content="summary_large_image" />
-    <meta
-      name="twitter:title"
-      content={`Chirag Singhal — ${title}`}
-    />
-    <meta
-      name="twitter:description"
-      content={description}
-    />
+    <meta name="twitter:title" content={`Chirag Singhal — ${title}`} />
+    <meta name="twitter:description" content={description} />
     <meta name="twitter:image" content={ogImageAbsolute} />
 
-    <!-- Fonts — preload critical weights -->
+    <!-- Fonts — IBM Plex Sans Condensed (display), Plex Sans (body),
+         JetBrains Mono (utility/data). Per v2 brief these are the only
+         allowed faces; Outfit + Inter are explicitly forbidden. -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      rel="preconnect"
-      href="https://fonts.googleapis.com"
-    />
-    <link
-      rel="preconnect"
-      href="https://fonts.gstatic.com"
-      crossorigin
-    />
-    <link
-      rel="dns-prefetch"
-      href="https://js.puter.com"
-    />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Outfit:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap"
       rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Sans+Condensed:wght@500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap"
     />
-
-    <!-- Puter.js for AI features (deferred) -->
-    <script src="https://js.puter.com/v2/" is:inline defer
-    ></script>
 
     <!-- Structured Data -->
     <script
@@ -139,205 +136,62 @@ const ogImageAbsolute = new URL(resolvedOgImage, Astro.url).toString();
     <!-- Per-page head injection (e.g. AgeGatedLayout adds rating + noindex). -->
     <slot name="head" />
 
-    <!-- Theme + accent FOUC paint — must run BEFORE first paint to avoid
-         a flash of the wrong theme/accent. Reads localStorage and sets
-         data-theme + data-accent on <html>, plus the legacy dark/light
-         classes for Tailwind dark: variant. -->
+    <!-- FOUC theme paint — read explicit override before first paint. The
+         v2 site only swaps light/dark; no accent system. -->
     <script is:inline>
       (function () {
         try {
-          var THEMES   = ['dark', 'light', 'amoled', 'contrast'];
-          var ACCENTS  = ['teal', 'cyan', 'violet', 'emerald', 'amber', 'rose', 'sky'];
-          var theme    = localStorage.getItem('theme');
-          var accent   = localStorage.getItem('accent');
-          if (THEMES.indexOf(theme) === -1) theme = 'dark';
-          if (ACCENTS.indexOf(accent) === -1) accent = 'teal';
-          var html = document.documentElement;
-          html.setAttribute('data-theme', theme);
-          if (accent === 'teal') {
-            html.removeAttribute('data-accent');
-          } else {
-            html.setAttribute('data-accent', accent);
+          var saved = localStorage.getItem('oriz-me:theme');
+          if (saved === 'dark' || saved === 'light') {
+            document.documentElement.setAttribute('data-theme', saved);
           }
-          var isLight = theme === 'light';
-          html.classList.toggle('light', isLight);
-          html.classList.toggle('dark', !isLight);
         } catch (_) { /* localStorage may be disabled */ }
       })();
     </script>
   </head>
-  <body
-    class="min-h-screen bg-[var(--surface-base,#030303)]
-      text-[var(--text-primary,#fff)] antialiased"
-  >
-    <!-- Skip to content (a11y) -->
-    <a
-      href="#main-content"
-      class="sr-only focus:not-sr-only focus:fixed
-        focus:top-4 focus:left-4 focus:z-[60]
-        focus:px-4 focus:py-2 focus:rounded-lg
-        focus:bg-[var(--primary)] focus:text-white
-        focus:outline-none"
-    >
-      Skip to main content
-    </a>
+  <body>
+    <a href="#main-content" class="skip-link">Skip to main content</a>
 
-    <AuthBanner client:load />
+    <Header {...(breadcrumb !== undefined ? { breadcrumb } : {})} />
+    {!hideProvenance && (
+      <ProvenanceStrip
+        {...(provenanceApis !== undefined ? { apis: provenanceApis } : {})}
+        {...(provenanceSection !== undefined ? { section: provenanceSection } : {})}
+      />
+    )}
 
-    <div id="app" class="flex min-h-screen">
-      <!-- Sidebar (hidden on fullWidth pages) -->
-      {!fullWidth && <Sidebar />}
+    <main id="main-content" role="main">
+      <slot />
+    </main>
 
-      <!-- Main content area -->
-      <div
-        class:list={[
-          'flex flex-col flex-1 min-h-screen',
-          !fullWidth && 'lg:ml-[var(--sidebar-width,240px)]',
-        ]}
-      >
-        <!-- Top header bar -->
-        <header
-          class="sticky top-0 z-30 flex items-center
-            justify-between px-4 sm:px-6
-            h-[var(--header-height,56px)]
-            bg-[var(--surface-base,#030303)]/80
-            backdrop-blur-xl
-            border-b border-[var(--border-subtle)]"
-        >
-          <!-- Mobile hamburger -->
-          <button
-            id="sidebar-toggle"
-            class="lg:hidden flex items-center
-              justify-center h-9 w-9 rounded-lg
-              text-white/50 hover:text-white
-              hover:bg-white/5 transition-colors
-              flex-shrink-0"
-            aria-label="Open navigation"
-            type="button"
-          >
-            <svg
-              class="h-5 w-5"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-              stroke-width="1.5"
-            >
-              <path d="M4 6h16M4 12h16M4 18h16" />
-            </svg>
-          </button>
+    <Footer {...(apiCount !== undefined ? { apiCount } : {})} />
 
-          <!-- Page title — collapses on md+ to give the mega header room -->
-          <h1
-            class="md:hidden text-sm font-medium text-white/60
-              truncate flex-1 text-center px-2"
-            style="font-family: var(--font-sans);"
-          >
-            {title}
-          </h1>
-          <div class="hidden md:flex flex-1"></div>
-
-          <!-- Right side CTAs (mega header) -->
-          <MegaHeader client:load />
-        </header>
-
-        <!-- Main content -->
-        <main
-          id="main-content"
-          class="flex-1"
-          role="main"
-        >
-          <slot />
-        </main>
-
-        <!-- Footer -->
-        <footer
-          class="border-t
-            border-[var(--border-subtle)]
-            py-8 px-6"
-        >
-          <div class="max-w-[var(--content-max-width)]
-            mx-auto flex flex-col sm:flex-row
-            items-center justify-between gap-4">
-            <p class="text-xs text-white/25">
-              &copy; {new Date().getFullYear()} Chirag
-              Singhal. Built with Astro + React.
-            </p>
-            <div class="flex items-center gap-4">
-              <a
-                href="/privacy"
-                class="text-xs text-white/25
-                  hover:text-white/50 transition-colors"
-              >
-                Privacy
-              </a>
-              <a
-                href="/terms"
-                class="text-xs text-white/25
-                  hover:text-white/50 transition-colors"
-              >
-                Terms
-              </a>
-              <a
-                href="https://github.com/chirag127"
-                target="_blank"
-                rel="noopener noreferrer"
-                class="text-xs text-white/25
-                  hover:text-white/50 transition-colors"
-              >
-                GitHub
-              </a>
-            </div>
-          </div>
-        </footer>
-      </div>
-    </div>
-
-    <ChatWrapper client:load />
-    <CookieBanner client:load />
-    <KeyboardShortcuts client:load />
-
-    <!-- Scroll-triggered reveal animations -->
-    <script is:inline>
-      (function () {
-        const obs = new IntersectionObserver(
-          function (entries) {
-            entries.forEach(function (e) {
-              if (e.isIntersecting) {
-                e.target.classList.add('visible');
-                obs.unobserve(e.target);
-              }
-            });
-          },
-          {
-            threshold: 0.1,
-            rootMargin: '0px 0px -40px 0px',
-          },
-        );
-        function observe() {
-          document
-            .querySelectorAll(
-              '.reveal,.reveal-left,' +
-                '.reveal-scale,.reveal-stagger',
-            )
-            .forEach(function (el) {
-              obs.observe(el);
-            });
-        }
-        if (document.readyState === 'loading') {
-          document.addEventListener(
-            'DOMContentLoaded',
-            observe,
-          );
-        } else {
-          observe();
-        }
-      })();
-    </script>
+    <CommandPalette />
   </body>
 </html>
 
 <style is:global>
-  html {
-    scroll-behavior: smooth;
+  /* Datasheet white surface — flat, no gradient, no scroll behavior tricks. */
+  html { scroll-behavior: smooth; }
+  body { background: var(--paper); color: var(--ink); }
+
+  /* Dark variant explicit attribute override (toggle button writes this). */
+  html[data-theme="dark"] {
+    --paper: #0b0f14;
+    --ink: #e8ecef;
+    --ink-soft: #8a95a3;
+    --rule: #2a3441;
+    --archival: #6ca8e8;
+    --archival-wash: #16243a;
+    color-scheme: dark;
+  }
+  html[data-theme="light"] {
+    --paper: #fafbfc;
+    --ink: #0e1318;
+    --ink-soft: #5a6470;
+    --rule: #c8cfd6;
+    --archival: #0b5394;
+    --archival-wash: #e6edf6;
+    color-scheme: light;
   }
 </style>

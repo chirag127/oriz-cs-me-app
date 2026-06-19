@@ -1,190 +1,182 @@
 ---
-import { experience, certifications, education, honors, projects, skills } from '../../content';
-import Layout from '../../layouts/Layout.astro';
-import CommandPalette from '../../components/CommandPalette.astro';
-import PageHeader from '../../components/PageHeader.astro';
+/*
+ * /work — career, skills, projects landing page (v2 datasheet).
+ *
+ * Per the v2 brief: per-section provenance, counts in mono, leader-dotted
+ * ranked tables. NO grids of cover images, NO carousels, NO ambient blur.
+ */
 
+import {
+  certifications,
+  education,
+  experience,
+  honors,
+  projects,
+  skills,
+} from '../../content';
+import Layout from '../../layouts/Layout.astro';
+
+const featured = projects.filter((p) => p.featured);
 const totalSkills = skills.reduce((sum, s) => sum + s.items.length, 0);
-const featuredProjects = projects.filter((p) => p.featured);
-const totalCredentials = education.length + honors.length;
+const totalCredentials =
+  education.length + honors.length + certifications.length;
+const top = experience[0];
+const topTitle = top?.title ?? 'Software Engineer';
+const topCompany = top?.company ?? 'TCS';
+const topDate = top?.date ?? '2026';
 ---
 
-<Layout title="Work Drive" description="Career timeline, skills, projects, education — Chirag Singhal">
-  <CommandPalette />
-  <main class="relative mx-auto max-w-[var(--content-max-width)] px-6 py-12">
-    <div class="absolute top-0 right-0 w-96 h-96 bg-[var(--primary-faint)] rounded-full blur-[120px] pointer-events-none"></div>
-    <div class="absolute bottom-40 left-0 w-64 h-64 bg-[var(--primary-faint)] rounded-full blur-[100px] pointer-events-none"></div>
-
-    <!-- Page Header -->
-    <PageHeader
-      section="WORK"
-      emoji="💼"
-      title="Career & Skills"
-      description={`Full-stack software engineer with ${experience.length} years of professional experience across ${skills.length} technical domains.`}
-    />
-
-    <!-- Current Role Hero -->
-    <div class="glass-strong p-8 mb-10 reveal relative overflow-hidden">
-      <div class="absolute top-0 right-0 w-48 h-48 bg-emerald-500/5 rounded-full blur-[80px] pointer-events-none"></div>
-      <div class="relative">
-        <div class="flex items-center gap-2 mb-3">
-          <span class="h-2 w-2 rounded-full bg-emerald-400 animate-pulse"></span>
-          <span class="text-xs text-emerald-400 font-semibold uppercase tracking-widest">Current Role</span>
-        </div>
-        <h2 class="text-3xl sm:text-4xl font-bold text-white mb-2">{experience[0].title}</h2>
-        <p class="text-xl text-[var(--primary-light)] font-medium mb-1">{experience[0].company}</p>
-        <p class="text-sm text-white/40 mb-5">{experience[0].location} · {experience[0].date}</p>
-        <div class="space-y-2">
-          {experience[0].items.slice(0, 3).map((item) => (
-            <div class="flex items-start gap-2.5 text-sm text-white/50 leading-relaxed">
-              <svg class="h-4 w-4 text-emerald-400/60 mt-0.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6" /></svg>
-              {item}
-            </div>
-          ))}
-        </div>
-      </div>
+<Layout
+  title="Work"
+  description="Career timeline, skills, projects, education — Chirag Singhal"
+  breadcrumb="WORK"
+  provenanceSection="/work"
+  provenanceApis="github · linkedin · authored"
+>
+  <div class="spine">
+    <header class="page-head">
+      <h1>Work</h1>
+      <p class="lede">
+        {experience.length} companies · {projects.length} projects · {totalSkills} skills · {totalCredentials} credentials.
+        The full career timeline + every project that ships at least once.
+      </p>
+    </header>
+    <div class="page-counts">
+      {topTitle} · {topCompany} · {topDate}
     </div>
 
-    <!-- Quick Stats -->
-    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-12 reveal-stagger">
-      <div class="glass p-5 text-center group hover:border-white/10 transition-colors">
-        <div class="text-3xl font-bold text-white mb-0.5">{experience.length}</div>
-        <div class="text-xs text-white/40">Companies</div>
-        <div class="text-[10px] text-white/20 mt-1">{experience.length > 1 ? `${experience[0].company.split(' ')[0]} → ${experience[1].company.split(' ')[0]}` : experience[0].company}</div>
-      </div>
-      <div class="glass p-5 text-center group hover:border-white/10 transition-colors">
-        <div class="text-3xl font-bold text-white mb-0.5">{projects.length}</div>
-        <div class="text-xs text-white/40">Projects Built</div>
-        <div class="text-[10px] text-white/20 mt-1">{featuredProjects.length} featured</div>
-      </div>
-      <div class="glass p-5 text-center group hover:border-white/10 transition-colors">
-        <div class="text-3xl font-bold text-white mb-0.5">{totalSkills}</div>
-        <div class="text-xs text-white/40">Technical Skills</div>
-        <div class="text-[10px] text-white/20 mt-1">{skills.length} categories</div>
-      </div>
-      <div class="glass p-5 text-center group hover:border-white/10 transition-colors">
-        <div class="text-3xl font-bold text-white mb-0.5">{totalCredentials}</div>
-        <div class="text-xs text-white/40">Credentials</div>
-        <div class="text-[10px] text-white/20 mt-1">certs + degrees</div>
-      </div>
-    </div>
-
-    <!-- Page Cards -->
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-16 reveal-stagger">
-      <a href="/work/career" class="card group relative overflow-hidden">
-        <div class="absolute top-0 right-0 w-24 h-24 bg-amber-500/5 rounded-full blur-[60px] pointer-events-none"></div>
-        <div class="h-12 w-12 rounded-xl bg-amber-500/10 flex items-center justify-center mb-4">
-          <svg class="h-6 w-6 text-amber-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>
-        </div>
-        <h2 class="text-xl font-semibold text-white group-hover:text-amber-400 transition-colors mb-2">Career Timeline</h2>
-        <p class="text-sm text-white/40 mb-3">{experience[0].title} at {experience[0].company} — full journey from {experience[experience.length-1].date.split(' ')[0]}</p>
-        <div class="flex items-center gap-1 text-xs text-amber-400/60 group-hover:text-amber-400 transition-colors">
-          <span>View full timeline</span>
-          <svg class="h-3 w-3 group-hover:translate-x-0.5 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" /></svg>
-        </div>
-      </a>
-
-      <a href="/work/skills" class="card group relative overflow-hidden">
-        <div class="absolute top-0 right-0 w-24 h-24 bg-teal-500/5 rounded-full blur-[60px] pointer-events-none"></div>
-        <div class="h-12 w-12 rounded-xl bg-teal-500/10 flex items-center justify-center mb-4">
-          <svg class="h-6 w-6 text-teal-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" /></svg>
-        </div>
-        <h2 class="text-xl font-semibold text-white group-hover:text-teal-400 transition-colors mb-2">Skills</h2>
-        <p class="text-sm text-white/40 mb-3">{totalSkills} skills across {skills.length} categories — filterable by domain</p>
-        <div class="flex items-center gap-1 text-xs text-teal-400/60 group-hover:text-teal-400 transition-colors">
-          <span>Explore skills</span>
-          <svg class="h-3 w-3 group-hover:translate-x-0.5 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" /></svg>
-        </div>
-      </a>
-
-      <a href="/work/projects" class="card group relative overflow-hidden">
-        <div class="absolute top-0 right-0 w-24 h-24 bg-emerald-500/5 rounded-full blur-[60px] pointer-events-none"></div>
-        <div class="h-12 w-12 rounded-xl bg-emerald-500/10 flex items-center justify-center mb-4">
-          <svg class="h-6 w-6 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" /></svg>
-        </div>
-        <h2 class="text-xl font-semibold text-white group-hover:text-emerald-400 transition-colors mb-2">Projects</h2>
-        <p class="text-sm text-white/40 mb-3">{featuredProjects.length} featured projects including Oriz, NexusAI, and TubeDigest</p>
-        <div class="flex items-center gap-1 text-xs text-emerald-400/60 group-hover:text-emerald-400 transition-colors">
-          <span>View all {projects.length} projects</span>
-          <svg class="h-3 w-3 group-hover:translate-x-0.5 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" /></svg>
-        </div>
-      </a>
-
-      <a href="/work/education" class="card group relative overflow-hidden">
-        <div class="absolute top-0 right-0 w-24 h-24 bg-violet-500/5 rounded-full blur-[60px] pointer-events-none"></div>
-        <div class="h-12 w-12 rounded-xl bg-violet-500/10 flex items-center justify-center mb-4">
-          <svg class="h-6 w-6 text-violet-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M12 14l9-5-9-5-9 5 9 5z" /><path stroke-linecap="round" stroke-linejoin="round" d="M12 14l9-5-9-5-9 5 9 5zm0 0l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14zm-4 6v-7.5l4-2.222" /></svg>
-        </div>
-        <h2 class="text-xl font-semibold text-white group-hover:text-violet-400 transition-colors mb-2">Education</h2>
-        <p class="text-sm text-white/40 mb-3">B.Tech CSE from AKTU — CGPA 8.81, College Topper, JEE Advanced Rank Holder</p>
-        <div class="flex items-center gap-1 text-xs text-violet-400/60 group-hover:text-violet-400 transition-colors">
-          <span>View education</span>
-          <svg class="h-3 w-3 group-hover:translate-x-0.5 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" /></svg>
-        </div>
-      </a>
-
-      <a href="/work/certifications" class="card group relative overflow-hidden">
-        <div class="absolute top-0 right-0 w-24 h-24 bg-rose-500/5 rounded-full blur-[60px] pointer-events-none"></div>
-        <div class="h-12 w-12 rounded-xl bg-rose-500/10 flex items-center justify-center mb-4">
-          <svg class="h-6 w-6 text-rose-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" /></svg>
-        </div>
-        <h2 class="text-xl font-semibold text-white group-hover:text-rose-400 transition-colors mb-2">Certifications & Honors</h2>
-        <p class="text-sm text-white/40 mb-3">{honors.length} honors including JEE Advanced, Meta Backend Developer, AWS Certified</p>
-        <div class="flex items-center gap-1 text-xs text-rose-400/60 group-hover:text-rose-400 transition-colors">
-          <span>View credentials</span>
-          <svg class="h-3 w-3 group-hover:translate-x-0.5 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" /></svg>
-        </div>
-      </a>
-    </div>
-
-    <!-- Career Timeline Preview -->
-    <div class="glass-strong p-8 mb-10 reveal">
-      <h2 class="text-xl font-bold text-white mb-6">Career Timeline</h2>
-      <div class="relative pl-6 border-l border-white/10 space-y-8">
-        {experience.slice(0, 2).map((exp, i) => (
-          <div class="relative">
-            <div class={`absolute -left-[1.65rem] h-3 w-3 rounded-full border-2 border-[var(--color-surface)] ${i === 0 ? 'bg-emerald-400' : 'bg-amber-400'}`}></div>
-            <div class="flex items-center gap-2 mb-1.5">
-              <span class={`text-xs font-semibold px-2 py-0.5 rounded-full ${i === 0 ? 'text-emerald-400 bg-emerald-400/10' : 'text-amber-400 bg-amber-400/10'}`}>{exp.date}</span>
-              <span class="text-xs text-white/30">{exp.location}</span>
-            </div>
-            <h3 class="text-lg font-semibold text-white">{exp.title}</h3>
-            <p class="text-sm text-[var(--primary-light)] mb-2">{exp.company}</p>
-            <p class="text-sm text-white/40 leading-relaxed">{exp.items[0]}</p>
+    <!-- Career timeline -->
+    <section class="band">
+      <p class="eyebrow band-eyebrow">CAREER</p>
+      <div class="timeline">
+        {experience.map((role) => (
+          <div class="timeline-row">
+            <span class="timeline-rule" aria-hidden="true">─</span>
+            <span class="timeline-year">{(role.date.split(' ')[0] ?? '').slice(0, 4)}</span>
+            <span class="timeline-rule" aria-hidden="true">──</span>
+            <span class="timeline-label">
+              {role.title}, {role.company}
+              <span class="timeline-meta mono">· {role.location}</span>
+            </span>
           </div>
         ))}
       </div>
-      <a href="/work/career" class="inline-flex items-center gap-1.5 text-sm text-[var(--primary-light)] hover:text-[var(--primary-lighter)] mt-6 transition-colors">
-        View full career timeline
-        <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" /></svg>
-      </a>
-    </div>
+      <p class="band-trail mono">
+        <a href="/work/career/">expanded timeline &rarr;</a>
+      </p>
+    </section>
 
-    <!-- Top Skills Preview -->
-    <div class="glass p-8">
-      <div class="flex items-center justify-between mb-5">
-        <h2 class="text-lg font-bold text-white">Core Stack</h2>
-        <a href="/work/skills" class="text-xs text-[var(--primary-light)] hover:text-[var(--primary-lighter)] transition-colors">View all →</a>
-      </div>
-      <div class="flex flex-wrap gap-2">
-        {skills.flatMap(s => s.items).slice(0, 20).map((skill) => (
-          <span class="px-3 py-1.5 text-xs rounded-lg bg-white/5 text-white/60 border border-white/5 hover:border-white/10 transition-colors">{skill}</span>
+    <hr class="hairline" />
+
+    <!-- Featured projects -->
+    <section class="band">
+      <p class="eyebrow band-eyebrow">FEATURED PROJECTS — {featured.length}</p>
+      <table class="ranked-table">
+        <thead>
+          <tr>
+            <th class="rank">#</th>
+            <th>name</th>
+            <th>stack</th>
+            <th class="right">link</th>
+          </tr>
+        </thead>
+        <tbody>
+          {featured.slice(0, 10).map((project, i) => {
+            const linkHref = project.link.startsWith('http')
+              ? project.link
+              : `https://${project.link}`;
+            const stack = project.tech.split(', ').slice(0, 2).join(' · ');
+            const rank = String(i + 1).padStart(2, '0');
+            return (
+              <tr>
+                <td class="rank">{rank}</td>
+                <td>{project.name}</td>
+                <td>{stack}</td>
+                <td class="right">
+                  <a href={linkHref} target="_blank" rel="noopener noreferrer">
+                    {project.link.replace(/^https?:\/\//, '').replace(/\/$/, '')}
+                  </a>
+                </td>
+              </tr>
+            );
+          })}
+        </tbody>
+      </table>
+      <p class="band-trail mono">
+        <a href="/work/projects/">all {projects.length} projects &rarr;</a>
+      </p>
+    </section>
+
+    <hr class="hairline" />
+
+    <!-- Skills (collapsed mono ledger) -->
+    <section class="band">
+      <p class="eyebrow band-eyebrow">SKILLS — {skills.length} CATEGORIES, {totalSkills} ITEMS</p>
+      <div class="skill-rows">
+        {skills.map((cat) => (
+          <div class="leader-row">
+            <span class="leader-name">{cat.category.toLowerCase()}</span>
+            <span class="leader-fill">{cat.items.join(' · ')}</span>
+            <span class="leader-time mono">{cat.items.length}</span>
+          </div>
         ))}
-        <span class="px-3 py-1.5 text-xs rounded-lg bg-[var(--primary-muted)] text-[var(--primary-light)] border border-[var(--primary-subtle)]">+{totalSkills - 20} more</span>
       </div>
-    </div>
+      <p class="band-trail mono">
+        <a href="/work/skills/">skills detail &rarr;</a>
+      </p>
+    </section>
 
-    <!-- Hire CTA -->
-    <div class="mt-12 glass-strong p-10 reveal relative overflow-hidden">
-      <div class="absolute inset-0 bg-gradient-to-br from-[var(--primary-faint)] via-transparent to-[var(--primary-faint)] pointer-events-none"></div>
-      <div class="relative text-center">
-        <h2 class="text-2xl sm:text-3xl font-bold text-white mb-3" style="font-family: var(--font-display, 'Outfit');">Interested in Working Together?</h2>
-        <p class="text-white/40 max-w-lg mx-auto mb-6">I'm open to new opportunities in software engineering, AI/ML, and full-stack development. Let's build something great.</p>
-        <a href="/connect" class="inline-flex items-center gap-2 px-8 py-3 rounded-full text-sm font-semibold bg-gradient-to-r from-[var(--primary)] to-[var(--primary-light)] text-white shadow-lg hover:shadow-[var(--shadow-glow-teal)] transition-all duration-300 hover:scale-[1.02]">
-          <span class="h-2 w-2 rounded-full bg-white animate-pulse"></span>
-          Get in Touch
-        </a>
-      </div>
-    </div>
-  </main>
+    <hr class="hairline" />
+
+    <!-- Sub-pages -->
+    <nav class="section-nav" aria-label="Section navigation">
+      <a href="/work/career/">/work/career</a>
+      <span aria-hidden="true">·</span>
+      <a href="/work/projects/">/work/projects</a>
+      <span aria-hidden="true">·</span>
+      <a href="/work/skills/">/work/skills</a>
+      <span aria-hidden="true">·</span>
+      <a href="/work/education/">/work/education</a>
+      <span aria-hidden="true">·</span>
+      <a href="/work/certifications/">/work/certifications</a>
+    </nav>
+  </div>
 </Layout>
+
+<style>
+  .band { padding-block: clamp(1.5rem, 4vw, 2.5rem); }
+  .timeline,
+  .skill-rows {
+    display: flex;
+    flex-direction: column;
+  }
+  .timeline-meta {
+    color: var(--ink-soft);
+    font-size: 0.8125rem;
+    margin-left: 0.5ch;
+  }
+  .ranked-table a {
+    color: var(--archival);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    text-decoration-color: var(--rule);
+  }
+  .ranked-table a:hover {
+    text-decoration-color: var(--archival);
+  }
+  .band-trail {
+    margin: 1rem 0 0;
+    font-size: 0.8125rem;
+    color: var(--ink-soft);
+  }
+  .band-trail a {
+    color: var(--ink-soft);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    text-decoration-color: var(--rule);
+  }
+  .band-trail a:hover {
+    color: var(--archival);
+    text-decoration-color: var(--archival);
+  }
+</style>

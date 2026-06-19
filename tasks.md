@@ -284,7 +284,7 @@
 176. - [ ] [P1] [doc] Write a `FORK.md` at the repo root explaining how to fork: replace `src/content/authored/*`, set 14 env vars, push, deploy
 177. - [ ] [P1] [doc] Update `README.md` with a "Fork this site" section linking to `FORK.md`
 178. - [ ] [P2] [setup] Build a `pnpm run setup-secrets` script (terminal-based) that prompts for each secret and writes `.env.local`
-179. - [ ] [P3] [setup] Build a `use-my-browser`-driven walkthrough script: opens Firebase / OpenRouter / Trakt / Spotify / Steam / LastFM / ListenBrainz / AniList / WakaTime / DevTo / Bluesky / YouTube / EmailJS / reCAPTCHA / TMDB dashboards in your live browser, prompts you to copy each key
+179. - [ ] [P3] [setup] Build a `use-my-browser`-driven walkthrough script: opens Firebase / OpenRouter / simkl / Spotify / Steam / LastFM / ListenBrainz / AniList / WakaTime / DevTo / Bluesky / YouTube / EmailJS / reCAPTCHA / TMDB dashboards in your live browser, prompts you to copy each key
 180. - [ ] [P2] [doc] Add a runbook `knowledge/runbooks/fork-this-site.md`
 181. - [ ] [P2] [doc] Add an example `.env.example` annotation for every secret with a 1-line description and a link to the provider dashboard
 182. - [ ] [P3] [doc] Record a Loom walking through the first deploy
@@ -294,7 +294,7 @@
 186. - [ ] [P3] [doc] Build a `/fork` showcase page listing forks
 187. - [ ] [P3] [seo] Add `<meta name="generator" content="me.oriz.in v1.0.0">` so forks are discoverable
 188. - [ ] [P3] [ops] Provide a one-click "Deploy to Cloudflare" button in `FORK.md`
-189. - [ ] [P3] [doc] Document the matrix of optional vs required services (e.g. site works without Trakt, breaks without Firebase)
+189. - [ ] [P3] [doc] Document the matrix of optional vs required services (e.g. site works without simkl, breaks without Firebase)
 190. - [ ] [P3] [ops] Provide a Docker-Compose for self-hosted forks (against the project's "no self-hosting" stance — purely as a reference)
 
 ---
@@ -359,7 +359,7 @@
 232. - [ ] [P0] [export] Build `scripts/parse-youtube-history.ts` that unzips a Takeout, finds `Takeout/YouTube and YouTube Music/history/watch-history.json`, and emits Event rows
 233. - [ ] [P0] [export] Idempotency: dedupe on `youtube:${videoId}:${watched_at}`
 234. - [ ] [P0] [ingest:youtube] Build `functions/scheduled/process-takeout-uploads.ts` that detects new R2 uploads and runs the parser
-235. - [ ] [P0] [ui] Build `src/pages/watch.astro` showing recently watched YouTube videos + Trakt episodes
+235. - [ ] [P0] [ui] Build `src/pages/watch.astro` showing recently watched YouTube videos + simkl episodes
 236. - [ ] [P1] [export] Build `scripts/parse-maps-timeline.ts` for `Takeout/Location History/Semantic Location History/<year>/<year>_<month>.json`
 237. - [ ] [P1] [ui] Build `src/pages/places.astro` with a Leaflet map of city-level location aggregates (downsampled per privacy policy)
 238. - [ ] [P2] [export] Build `scripts/parse-photos-metadata.ts` (just metadata, never the photos themselves)
@@ -393,10 +393,10 @@
 
 ### I.2 Movies / TV / Anime / Manga (10)
 
-256. - [ ] [P2] [ingest:trakt] Trakt 15-minute poll → `kind:"watch"`
+256. - [ ] [P2] [ingest:simkl] simkl 15-minute poll → `kind:"watch"`
 257. - [ ] [P2] [ingest:anilist] AniList GraphQL 30-minute poll → `kind:"watch"` for anime, `kind:"read"` for manga
 258. - [ ] [P2] [ingest:mal] MyAnimeList API as fallback to AniList (low priority — duplicates data)
-259. - [ ] [P2] [ingest:simkl] Simkl as a parallel source if Trakt rate-limits
+259. - [ ] [P2] [ingest:simkl] Simkl as a parallel source if simkl rate-limits
 260. - [ ] [P2] [ingest:mangadex] MangaDex API for chapter-level reading progress
 261. - [ ] [P2] [export:letterboxd] Quarterly Letterboxd CSV import worker
 262. - [ ] [P3] [ingest:plex] Plex Media Server webhook → events (only if user runs Plex)

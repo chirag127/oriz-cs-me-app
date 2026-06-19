@@ -1,0 +1,399 @@
+/*
+ * oriz-ui-overrides — site-local styling for `[data-oriz-account-*]`,
+ * `[data-oriz-finish-sign-in-*]`, `[data-oriz-contact-*]` islands.
+ *
+ * Datasheet white + archival blue. Hairline `--rule` borders, no rounded
+ * corners, no glass, no shadow.
+ *
+ * Selector hooks documented at:
+ *   packages/auth-ui/src/AccountPanel.tsx
+ *   packages/auth-ui/src/FinishSignIn.tsx
+ *   packages/contact-form/src/ContactForm.tsx
+ */
+
+/* ── AccountPanel ─────────────────────────────────────────────────── */
+
+[data-oriz-account] {
+  display: block;
+  margin-block: 2rem;
+  padding: 1.5rem;
+  background: transparent;
+  border: 1px solid var(--rule);
+  font-family: var(--font-sans);
+  color: var(--ink);
+}
+
+[data-oriz-account-state="loading"] {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  padding-block: 2.5rem;
+}
+
+[data-oriz-account-spinner] {
+  display: inline-block;
+  font-size: 1.25rem;
+  color: var(--ink-soft);
+  animation: oriz-spin 1.2s linear infinite;
+}
+
+[data-oriz-account-heading] {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 1.5rem;
+  letter-spacing: -0.01em;
+  margin: 0 0 1.25rem;
+  color: var(--ink);
+}
+
+[data-oriz-account-providers] {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+[data-oriz-account-provider] {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.625rem;
+  width: 100%;
+  height: 44px;
+  padding-inline: 1rem;
+  background: var(--paper);
+  border: 1px solid var(--rule);
+  border-radius: 0;
+  color: var(--ink);
+  font-family: inherit;
+  font-size: 0.9375rem;
+  cursor: pointer;
+}
+
+[data-oriz-account-provider]:hover:not(:disabled) {
+  border-color: var(--archival);
+  color: var(--archival);
+}
+
+[data-oriz-account-provider]:focus-visible {
+  outline: 2px solid var(--archival);
+  outline-offset: 2px;
+}
+
+[data-oriz-account-provider]:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+[data-oriz-account-provider="email"] {
+  background: var(--archival);
+  color: var(--paper);
+  border-color: var(--archival);
+  font-weight: 500;
+}
+
+[data-oriz-account-provider="email"]:hover:not(:disabled) {
+  background: var(--ink);
+  color: var(--paper);
+  border-color: var(--ink);
+}
+
+[data-oriz-account-separator] {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-block: 1.5rem;
+  color: var(--ink-soft);
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+}
+
+[data-oriz-account-separator]::before,
+[data-oriz-account-separator]::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: var(--rule);
+}
+
+[data-oriz-account-email-form] {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+[data-oriz-account-email-form] input[type="email"] {
+  flex: 1;
+  min-width: 200px;
+  height: 44px;
+  padding-inline: 0.875rem;
+  background: var(--paper);
+  border: 1px solid var(--rule);
+  color: var(--ink);
+  font-family: inherit;
+  font-size: 0.9375rem;
+}
+
+[data-oriz-account-email-form] input[type="email"]:focus {
+  outline: none;
+  border-color: var(--archival);
+}
+
+[data-oriz-account-link-sent] {
+  margin-block: 0.75rem 0;
+  color: var(--ink-soft);
+  font-size: 0.875rem;
+  line-height: 1.5;
+}
+
+[data-oriz-account-provider="anon"] {
+  display: block;
+  width: 100%;
+  margin-top: 1rem;
+  padding: 0.5rem;
+  background: transparent;
+  border: 0;
+  color: var(--ink-soft);
+  font-family: inherit;
+  font-size: 0.875rem;
+  text-align: center;
+  text-decoration: underline;
+  text-underline-offset: 0.25em;
+  cursor: pointer;
+}
+
+[data-oriz-account-provider="anon"]:hover:not(:disabled) {
+  color: var(--archival);
+}
+
+[data-oriz-account-me] {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1.25rem;
+}
+
+[data-oriz-account-avatar] {
+  width: 56px;
+  height: 56px;
+  border: 1px solid var(--rule);
+}
+
+[data-oriz-account-name] {
+  margin: 0;
+  font-weight: 600;
+  font-size: 1.0625rem;
+  color: var(--ink);
+}
+
+[data-oriz-account-email] {
+  margin: 0.125rem 0 0;
+  color: var(--ink-soft);
+  font-family: var(--font-mono);
+  font-size: 0.8125rem;
+}
+
+[data-oriz-account-note] {
+  margin-block: 1rem;
+  color: var(--ink-soft);
+  line-height: 1.55;
+  font-size: 0.9375rem;
+}
+
+[data-oriz-account-action="sign-out"] {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  height: 40px;
+  padding-inline: 1rem;
+  background: var(--paper);
+  border: 1px solid var(--rule);
+  color: var(--ink);
+  font-family: inherit;
+  font-size: 0.9375rem;
+  cursor: pointer;
+}
+
+[data-oriz-account-action="sign-out"]:hover:not(:disabled) {
+  border-color: var(--status-bad);
+  color: var(--status-bad);
+}
+
+[data-oriz-account-error] {
+  margin-top: 1rem;
+  padding: 0.75rem 1rem;
+  background: color-mix(in oklab, var(--status-bad) 12%, transparent);
+  border: 1px solid color-mix(in oklab, var(--status-bad) 50%, transparent);
+  color: var(--ink);
+  font-size: 0.875rem;
+}
+
+/* ── FinishSignIn ─────────────────────────────────────────────────── */
+
+[data-oriz-finish-sign-in] {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  margin-block: 4rem;
+  font-family: var(--font-sans);
+  color: var(--ink);
+}
+
+[data-oriz-finish-sign-in-state="done"] {
+  color: var(--archival);
+}
+
+[data-oriz-finish-sign-in-error] {
+  padding: 0.875rem 1.25rem;
+  background: color-mix(in oklab, var(--status-bad) 12%, transparent);
+  border: 1px solid color-mix(in oklab, var(--status-bad) 50%, transparent);
+  color: var(--ink);
+}
+
+/* ── ContactForm ──────────────────────────────────────────────────── */
+
+form[data-oriz-contact] {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-block: 2rem;
+  font-family: var(--font-sans);
+}
+
+[data-oriz-contact-honeypot] {
+  position: absolute;
+  left: -9999px;
+  opacity: 0;
+}
+
+[data-oriz-contact-field] {
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+}
+
+[data-oriz-contact-field] > span:first-child {
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+  color: var(--ink-soft);
+  font-weight: 500;
+}
+
+[data-oriz-contact-field] input,
+[data-oriz-contact-field] textarea {
+  padding: 0.625rem 0.875rem;
+  background: var(--paper);
+  border: 1px solid var(--rule);
+  color: var(--ink);
+  font-family: inherit;
+  font-size: 1rem;
+}
+
+[data-oriz-contact-field] input:focus,
+[data-oriz-contact-field] textarea:focus {
+  outline: none;
+  border-color: var(--archival);
+}
+
+[data-oriz-contact-field] textarea {
+  resize: vertical;
+  min-height: 120px;
+}
+
+[data-oriz-contact-error] {
+  color: var(--status-bad);
+  font-size: 0.8125rem;
+  margin: 0;
+}
+
+[data-oriz-contact-submit] {
+  align-self: flex-start;
+  height: 44px;
+  padding-inline: 1.5rem;
+  background: var(--archival);
+  color: var(--paper);
+  border: 1px solid var(--archival);
+  font-family: inherit;
+  font-size: 0.9375rem;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+[data-oriz-contact-submit]:hover:not(:disabled) {
+  background: var(--ink);
+  border-color: var(--ink);
+}
+
+[data-oriz-contact-submit]:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+[data-oriz-contact-success] {
+  margin-top: 0.75rem;
+  padding: 0.75rem 1rem;
+  background: var(--archival-wash);
+  border: 1px solid var(--archival);
+  color: var(--ink);
+  font-size: 0.9375rem;
+}
+
+/* ── AgeGate restyle ──────────────────────────────────────────────── */
+
+[data-oriz-age-gate-card] {
+  background: var(--paper);
+  border: 1px solid var(--rule);
+  border-radius: 0;
+  padding: 1.75rem;
+  box-shadow: none;
+  font-family: var(--font-sans);
+  color: var(--ink);
+}
+
+[data-oriz-age-gate-accept] {
+  background: var(--archival);
+  color: var(--paper);
+  border: 1px solid var(--archival);
+  border-radius: 0;
+  padding: 0.625rem 1rem;
+  font-family: inherit;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+[data-oriz-age-gate-accept]:hover {
+  background: var(--ink);
+  border-color: var(--ink);
+}
+
+[data-oriz-age-gate-decline] {
+  background: var(--paper);
+  color: var(--ink-soft);
+  border: 1px solid var(--rule);
+  border-radius: 0;
+  padding: 0.5rem 1rem;
+  font-family: inherit;
+  cursor: pointer;
+}
+
+[data-oriz-age-gate-decline]:hover {
+  border-color: var(--archival);
+  color: var(--archival);
+}
+
+@keyframes oriz-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-oriz-account-spinner] {
+    animation: none;
+  }
+}

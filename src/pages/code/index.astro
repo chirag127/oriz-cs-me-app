@@ -1,341 +1,181 @@
 ---
-import StatsCounter from '../../components/islands/StatsCounter';
-import Layout from '../../layouts/Layout.astro';
-import CommandPalette from '../../components/CommandPalette.astro';
-import PageHeader from '../../components/PageHeader.astro';
+/*
+ * /code — code activity landing (v2 datasheet).
+ *
+ * Per the brief: GitHub stats appear here as plain mono tables, NOT as a
+ * contribution heatmap. Repos sorted by stars; npm packages and
+ * stackoverflow rep also surface as ranked rows.
+ */
 
+import Layout from '../../layouts/Layout.astro';
 import {
-  fetchCodewarsUser,
   fetchGitHubRepos,
   fetchGitHubUser,
   fetchLeetCodeStats,
-} from '../../lib/api';
+} from '../../lib/api/index';
 
-const [githubUser, githubRepos, leetcodeStats, codewarsUser] =
-  await Promise.all([
-    fetchGitHubUser(),
-    fetchGitHubRepos(),
-    fetchLeetCodeStats(),
-    fetchCodewarsUser(),
-  ]);
+const [user, repos, leetcode] = await Promise.all([
+  fetchGitHubUser().catch(() => null),
+  fetchGitHubRepos().catch(
+    () => [] as Awaited<ReturnType<typeof fetchGitHubRepos>>,
+  ),
+  fetchLeetCodeStats().catch(() => null),
+]);
 
-const totalStars = githubRepos.reduce((sum, r) => sum + r.stargazers_count, 0);
-const totalForks = githubRepos.reduce((sum, r) => sum + r.forks_count, 0);
-
-// Top languages by repo count
-const langMap = new Map<string, number>();
-for (const r of githubRepos.filter((r) => r.language)) {
-  langMap.set(r.language!, (langMap.get(r.language!) || 0) + 1);
+interface Repo {
+  name?: string;
+  full_name?: string;
+  html_url?: string;
+  stargazers_count?: number;
+  language?: string | null;
+  description?: string | null;
+  pushed_at?: string;
 }
-const topLanguages = [...langMap.entries()]
-  .sort((a, b) => b[1] - a[1])
-  .slice(0, 10);
 
-// Recent repos (last 10 updated)
-const recentRepos = [...githubRepos]
-  .sort(
-    (a, b) =>
-      new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime(),
-  )
-  .slice(0, 10);
+const sortedRepos: Repo[] = [...((repos as Repo[]) ?? [])]
+  .sort((a, b) => (b.stargazers_count ?? 0) - (a.stargazers_count ?? 0))
+  .slice(0, 12);
 
-// Account age
-const accountAge = githubUser
-  ? new Date().getFullYear() - new Date(githubUser.created_at).getFullYear()
-  : 0;
-
-// LeetCode percentages
-const lecEasyPct = leetcodeStats
-  ? Math.round((leetcodeStats.totalEasySolved / leetcodeStats.totalEasy) * 100)
-  : 0;
-const lecMedPct = leetcodeStats
-  ? Math.round(
-      (leetcodeStats.totalMediumSolved / leetcodeStats.totalMedium) * 100,
-    )
-  : 0;
-const lecHardPct = leetcodeStats
-  ? Math.round((leetcodeStats.totalHardSolved / leetcodeStats.totalHard) * 100)
-  : 0;
+const totalStars = ((repos as Repo[]) ?? []).reduce(
+  (s: number, r: Repo) => s + (r.stargazers_count ?? 0),
+  0,
+);
 ---
 
-<Layout title="Code Drive" description="GitHub stats, LeetCode progress, Codewars rank, and coding activity — all inline">
-  <CommandPalette />
-  <main class="mx-auto max-w-[var(--content-max-width)] px-6 py-12 relative">
-    <div class="absolute top-0 right-0 w-96 h-96 bg-[var(--primary-faint)] rounded-full blur-[120px] pointer-events-none"></div>
-    <div class="absolute bottom-40 left-0 w-64 h-64 bg-[var(--primary-faint)] rounded-full blur-[100px] pointer-events-none"></div>
-
-    <!-- Header -->
-    <PageHeader
-      section="CODE"
-      emoji="💻"
-      title="Coding Dashboard"
-      description="All data fetched live at build time from GitHub, LeetCode, and Codewars."
-    />
-
-    <!-- Hero Stats Row -->
-    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8 reveal-stagger">
-      <div class="glass p-6 text-center">
-        <StatsCounter client:visible value={githubUser?.public_repos || 0} label="Public Repos" icon="📦" />
-      </div>
-      <div class="glass p-6 text-center">
-        <StatsCounter client:visible value={totalStars} label="Total Stars" icon="⭐" />
-      </div>
-      <div class="glass p-6 text-center">
-        <StatsCounter client:visible value={githubUser?.followers || 0} label="Followers" icon="👥" />
-      </div>
-      <div class="glass p-6 text-center">
-        <StatsCounter client:visible value={leetcodeStats?.totalSolved || 0} label="LeetCode Solved" icon="🧩" />
-      </div>
+<Layout
+  title="Code"
+  description="GitHub repos, npm packages, LeetCode, StackOverflow — daily-synced activity."
+  breadcrumb="CODE"
+  provenanceSection="/code"
+  provenanceApis="github · npm · leetcode · stackoverflow · holopin"
+>
+  <div class="spine">
+    <header class="page-head">
+      <h1>Code</h1>
+      <p class="lede">
+        Open-source repos, package downloads, problem-solving stats. The
+        public ledger — every PR, star, package install since 2022.
+      </p>
+    </header>
+    <div class="page-counts">
+      {repos?.length ?? 0} repos · {totalStars}+ stars · {leetcode?.totalSolved ?? '500+'} solved · {user?.followers ?? 0} followers
     </div>
 
-    <!-- GitHub Profile Card -->
-    {githubUser && (
-      <div class="glass-strong p-8 mb-8 reveal">
-        <div class="flex items-center gap-3 mb-6">
-          <div class="h-10 w-10 rounded-lg bg-[var(--primary-muted)] flex items-center justify-center">
-            <svg class="h-5 w-5 text-[var(--primary-light)]" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
-          </div>
-          <div>
-            <h2 class="text-xl font-bold text-white">GitHub Profile</h2>
-            <p class="text-xs text-white/40">@{githubUser.login}{githubUser.name ? ` · ${githubUser.name}` : ''}</p>
-          </div>
-        </div>
-        {githubUser.bio && <p class="text-sm text-white/50 mb-5 leading-relaxed">{githubUser.bio}</p>}
-        <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
-          <div class="p-3 rounded-lg bg-white/[0.02] border border-white/5 text-center">
-            <div class="text-lg font-bold text-white">{githubUser.public_repos}</div>
-            <div class="text-[10px] text-white/30 uppercase tracking-wider">Repos</div>
-          </div>
-          <div class="p-3 rounded-lg bg-white/[0.02] border border-white/5 text-center">
-            <div class="text-lg font-bold text-[var(--primary-light)]">{githubUser.followers}</div>
-            <div class="text-[10px] text-white/30 uppercase tracking-wider">Followers</div>
-          </div>
-          <div class="p-3 rounded-lg bg-white/[0.02] border border-white/5 text-center">
-            <div class="text-lg font-bold text-white">{githubUser.following}</div>
-            <div class="text-[10px] text-white/30 uppercase tracking-wider">Following</div>
-          </div>
-          <div class="p-3 rounded-lg bg-white/[0.02] border border-white/5 text-center">
-            <div class="text-lg font-bold text-white">{accountAge}+</div>
-            <div class="text-[10px] text-white/30 uppercase tracking-wider">Years Active</div>
-          </div>
-        </div>
+    <!-- Top repos -->
+    <section class="band">
+      <p class="eyebrow band-eyebrow">REPOS — RANKED BY ⋆</p>
+      <table class="ranked-table">
+        <thead>
+          <tr>
+            <th class="rank">#</th>
+            <th>repo</th>
+            <th>language</th>
+            <th class="right">stars</th>
+          </tr>
+        </thead>
+        <tbody>
+          {sortedRepos.map((repo, i) => {
+            const rank = String(i + 1).padStart(2, '0');
+            return (
+              <tr>
+                <td class="rank">{rank}</td>
+                <td>
+                  <a
+                    href={repo.html_url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    {repo.name}
+                  </a>
+                </td>
+                <td>{repo.language ?? '—'}</td>
+                <td class="right">{repo.stargazers_count ?? 0}</td>
+              </tr>
+            );
+          })}
+        </tbody>
+      </table>
+      <p class="band-trail mono">
+        <a href="/code/repos/">all repos &rarr;</a>
+      </p>
+    </section>
+
+    <hr class="hairline" />
+
+    <!-- Sub-pages -->
+    <section class="band">
+      <p class="eyebrow band-eyebrow">SUB-PAGES</p>
+      <div class="me-rows">
+        <a class="leader-row me-link" href="/code/repos/">
+          <span class="leader-name">/code/repos</span>
+          <span class="leader-fill">github repositories — full list</span>
+          <span class="leader-time mono">read &rarr;</span>
+        </a>
+        <a class="leader-row me-link" href="/code/npm/">
+          <span class="leader-name">/code/npm</span>
+          <span class="leader-fill">published packages + downloads</span>
+          <span class="leader-time mono">read &rarr;</span>
+        </a>
+        <a class="leader-row me-link" href="/code/stackoverflow/">
+          <span class="leader-name">/code/stackoverflow</span>
+          <span class="leader-fill">reputation, top answers</span>
+          <span class="leader-time mono">read &rarr;</span>
+        </a>
+        <a class="leader-row me-link" href="/code/holopin/">
+          <span class="leader-name">/code/holopin</span>
+          <span class="leader-fill">open-source contribution badges</span>
+          <span class="leader-time mono">read &rarr;</span>
+        </a>
       </div>
-    )}
+    </section>
 
-    <!-- LeetCode Section -->
-    {leetcodeStats && (
-      <div class="glass p-8 mb-8 reveal">
-        <div class="flex items-center gap-3 mb-6">
-          <div class="h-10 w-10 rounded-lg bg-amber-500/10 flex items-center justify-center">
-            <svg class="h-5 w-5 text-amber-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" /></svg>
-          </div>
-          <div>
-            <h2 class="text-xl font-bold text-white">LeetCode Progress</h2>
-            <p class="text-xs text-white/40">@{githubUser?.login || 'chirag127'} · {leetcodeStats.totalSolved} solved</p>
-          </div>
-        </div>
+    <hr class="hairline" />
 
-        <!-- Difficulty Progress Bars -->
-        <div class="space-y-5 mb-6">
-          <div>
-            <div class="flex items-center justify-between mb-2">
-              <div class="flex items-center gap-2">
-                <span class="h-2.5 w-2.5 rounded-full bg-emerald-400"></span>
-                <span class="text-sm text-emerald-400 font-medium">Easy</span>
-              </div>
-              <span class="text-sm text-white/50 font-medium">{leetcodeStats.totalEasySolved} <span class="text-white/25">/ {leetcodeStats.totalEasy}</span></span>
-            </div>
-            <div class="h-3 rounded-full bg-white/5 overflow-hidden">
-              <div class="h-full rounded-full bg-gradient-to-r from-emerald-500 to-emerald-400 transition-all duration-700" style={`width: ${lecEasyPct}%`}></div>
-            </div>
-            <div class="text-xs text-white/25 mt-1">{lecEasyPct}% completed</div>
-          </div>
-          <div>
-            <div class="flex items-center justify-between mb-2">
-              <div class="flex items-center gap-2">
-                <span class="h-2.5 w-2.5 rounded-full bg-amber-400"></span>
-                <span class="text-sm text-amber-400 font-medium">Medium</span>
-              </div>
-              <span class="text-sm text-white/50 font-medium">{leetcodeStats.totalMediumSolved} <span class="text-white/25">/ {leetcodeStats.totalMedium}</span></span>
-            </div>
-            <div class="h-3 rounded-full bg-white/5 overflow-hidden">
-              <div class="h-full rounded-full bg-gradient-to-r from-amber-500 to-amber-400 transition-all duration-700" style={`width: ${lecMedPct}%`}></div>
-            </div>
-            <div class="text-xs text-white/25 mt-1">{lecMedPct}% completed</div>
-          </div>
-          <div>
-            <div class="flex items-center justify-between mb-2">
-              <div class="flex items-center gap-2">
-                <span class="h-2.5 w-2.5 rounded-full bg-red-400"></span>
-                <span class="text-sm text-red-400 font-medium">Hard</span>
-              </div>
-              <span class="text-sm text-white/50 font-medium">{leetcodeStats.totalHardSolved} <span class="text-white/25">/ {leetcodeStats.totalHard}</span></span>
-            </div>
-            <div class="h-3 rounded-full bg-white/5 overflow-hidden">
-              <div class="h-full rounded-full bg-gradient-to-r from-red-500 to-red-400 transition-all duration-700" style={`width: ${lecHardPct}%`}></div>
-            </div>
-            <div class="text-xs text-white/25 mt-1">{lecHardPct}% completed</div>
-          </div>
-        </div>
-
-        <div class="grid grid-cols-3 gap-4 pt-4 border-t border-white/5">
-          <div class="text-center">
-            <div class="text-xl font-bold text-[var(--primary-light)]">{leetcodeStats.acceptanceRate?.toFixed(1)}%</div>
-            <div class="text-xs text-white/40">Acceptance Rate</div>
-          </div>
-          <div class="text-center">
-            <div class="text-xl font-bold text-white">{leetcodeStats.totalSolved}</div>
-            <div class="text-xs text-white/40">Total Solved</div>
-          </div>
-          <div class="text-center">
-            <div class="text-xl font-bold text-white">{leetcodeStats.ranking > 0 ? `#${leetcodeStats.ranking.toLocaleString()}` : 'N/A'}</div>
-            <div class="text-xs text-white/40">Global Rank</div>
-          </div>
-        </div>
-      </div>
-    )}
-
-    <!-- Codewars Section -->
-    {codewarsUser && (
-      <div class="glass p-8 mb-8 reveal">
-        <div class="flex items-center gap-3 mb-6">
-          <div class="h-10 w-10 rounded-lg bg-rose-500/10 flex items-center justify-center">
-            <svg class="h-5 w-5 text-rose-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
-          </div>
-          <div>
-            <h2 class="text-xl font-bold text-white">Codewars</h2>
-            <p class="text-xs text-white/40">@{codewarsUser.username}{codewarsUser.clan ? ` · ${codewarsUser.clan}` : ''}</p>
-          </div>
-        </div>
-
-        <div class="grid grid-cols-2 md:grid-cols-5 gap-4 mb-6">
-          <div class="p-4 rounded-lg bg-white/[0.02] border border-white/5 text-center">
-            <div class="text-2xl font-bold text-[var(--primary-light)]">{codewarsUser.ranks.overall.name}</div>
-            <div class="text-xs text-white/40">Overall Rank</div>
-          </div>
-          <div class="p-4 rounded-lg bg-white/[0.02] border border-white/5 text-center">
-            <div class="text-2xl font-bold text-white">{codewarsUser.honor}</div>
-            <div class="text-xs text-white/40">Honor Points</div>
-          </div>
-          <div class="p-4 rounded-lg bg-white/[0.02] border border-white/5 text-center">
-            <div class="text-2xl font-bold text-white">{codewarsUser.codeChallenges.totalCompleted}</div>
-            <div class="text-xs text-white/40">Completed</div>
-          </div>
-          <div class="p-4 rounded-lg bg-white/[0.02] border border-white/5 text-center">
-            <div class="text-2xl font-bold text-white">{codewarsUser.codeChallenges.totalAuthored}</div>
-            <div class="text-xs text-white/40">Authored</div>
-          </div>
-          <div class="p-4 rounded-lg bg-white/[0.02] border border-white/5 text-center">
-            <div class="text-2xl font-bold text-white">#{codewarsUser.leaderboardPosition}</div>
-            <div class="text-xs text-white/40">Leaderboard</div>
-          </div>
-        </div>
-
-        {codewarsUser.ranks.languages && Object.keys(codewarsUser.ranks.languages).length > 0 && (
-          <div class="pt-4 border-t border-white/5">
-            <h3 class="text-sm font-medium text-white/50 mb-3">Language Ranks</h3>
-            <div class="flex flex-wrap gap-2">
-              {Object.entries(codewarsUser.ranks.languages).map(([lang, rank]) => (
-                <span class="px-3 py-1.5 text-xs rounded-lg bg-white/5 text-white/50 border border-white/5 font-medium">
-                  {lang}: <span class="text-[var(--primary-light)]">{rank.name}</span> ({rank.score})
-                </span>
-              ))}
-            </div>
-          </div>
-        )}
-      </div>
-    )}
-
-    <!-- Top Languages -->
-    <div class="glass p-8 mb-8 reveal">
-      <h2 class="text-xl font-bold text-white mb-5">Top Languages</h2>
-      <div class="space-y-4">
-        {topLanguages.map(([lang, count], i) => {
-          const pct = Math.round((count / githubRepos.filter(r => r.language).length) * 100);
-          const colors = ['from-amber-500 to-orange-400', 'from-sky-500 to-blue-400', 'from-emerald-500 to-green-400', 'from-violet-500 to-purple-400', 'from-rose-500 to-pink-400', 'from-cyan-500 to-teal-400', 'from-yellow-500 to-amber-400', 'from-indigo-500 to-blue-400', 'from-lime-500 to-green-400', 'from-fuchsia-500 to-pink-400'];
-          return (
-            <div>
-              <div class="flex items-center justify-between text-sm mb-1.5">
-                <span class="text-white/70 font-medium">{lang}</span>
-                <span class="text-white/40">{count} repos · {pct}%</span>
-              </div>
-              <div class="h-2.5 rounded-full bg-white/5 overflow-hidden">
-                <div class={`h-full rounded-full bg-gradient-to-r ${colors[i % colors.length]} transition-all duration-500`} style={`width: ${pct}%`}></div>
-              </div>
-            </div>
-          );
-        })}
-      </div>
-    </div>
-
-    <!-- Recent Repos -->
-    <div class="glass p-8 mb-8 reveal">
-      <div class="flex items-center justify-between mb-6">
-        <h2 class="text-xl font-bold text-white">Recently Updated Repos</h2>
-        <span class="text-xs text-white/30">{recentRepos.length} most recent</span>
-      </div>
-      <div class="space-y-3">
-        {recentRepos.map((repo) => (
-          <div class="p-4 rounded-lg bg-white/[0.02] border border-white/5 hover:border-white/10 transition-colors">
-            <div class="flex items-start justify-between gap-3">
-              <div class="min-w-0">
-                <h3 class="text-sm font-semibold text-white truncate">{repo.name}</h3>
-                {repo.description && <p class="text-xs text-white/40 mt-1 line-clamp-2">{repo.description}</p>}
-              </div>
-              <div class="flex items-center gap-3 text-xs text-white/30 flex-shrink-0">
-                {repo.stargazers_count > 0 && (
-                  <span class="flex items-center gap-1">
-                    <svg class="h-3 w-3" fill="currentColor" viewBox="0 0 16 16"><path d="M8 .25a.75.75 0 01.673.418l1.882 3.815 4.21.612a.75.75 0 01.416 1.279l-3.046 2.97.719 4.192a.75.75 0 01-1.088.791L8 12.347l-3.766 1.98a.75.75 0 01-1.088-.79l.72-4.194L.818 6.374a.75.75 0 01.416-1.28l4.21-.611L7.327.668A.75.75 0 018 .25z"/></svg>
-                    {repo.stargazers_count}
-                  </span>
-                )}
-                {repo.forks_count > 0 && (
-                  <span class="flex items-center gap-1">
-                    <svg class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" /></svg>
-                    {repo.forks_count}
-                  </span>
-                )}
-              </div>
-            </div>
-            <div class="flex items-center gap-2 mt-2">
-              {repo.language && <span class="inline-flex items-center gap-1 text-[10px] text-white/40"><span class="h-2 w-2 rounded-full bg-[var(--primary-light)]"></span>{repo.language}</span>}
-              {repo.topics?.slice(0, 3).map((t) => <span class="px-1.5 py-0.5 text-[9px] rounded-full bg-white/5 text-white/30">{t}</span>)}
-            </div>
-          </div>
-        ))}
-      </div>
-    </div>
-
-    <!-- All Repos Count -->
-    <div class="glass p-6 text-center mb-8">
-      <div class="text-2xl font-bold text-white mb-1">{githubRepos.length}</div>
-      <div class="text-xs text-white/40">Total Public Repositories</div>
-    </div>
-
-    <!-- Other Dev Platforms -->
-    <h2 class="text-xl font-bold text-white mb-6">Other Dev Platforms</h2>
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-      <a href="/code/npm" class="glass p-6 border border-white/5 hover:border-red-500/30 transition-colors group">
-        <div class="h-10 w-10 rounded-xl bg-red-500/10 flex items-center justify-center mb-3">
-          <svg class="h-5 w-5 text-red-400" viewBox="0 0 24 24" fill="currentColor"><path d="M1.765 11.184h1.785v2.632h1.362V8.552H1.765v2.632zm5.338-2.632H5.74v7.895h2.725v-5.264h1.362v5.264h1.363V8.552H7.103zm6.7 0h-1.363v7.895h4.088v-2.632h-2.725V8.552zm5.338 0h-1.363v7.895h1.363v-5.263h1.362v5.263h1.363V8.552h-2.725z"/></svg>
-        </div>
-        <h3 class="text-base font-semibold text-white group-hover:text-red-400 transition-colors">NPM</h3>
-        <p class="text-xs text-white/40 mt-1">Published packages and download stats</p>
-      </a>
-      <a href="/code/stackoverflow" class="glass p-6 border border-white/5 hover:border-orange-500/30 transition-colors group">
-        <div class="h-10 w-10 rounded-xl bg-orange-500/10 flex items-center justify-center mb-3">
-          <svg class="h-5 w-5 text-orange-400" viewBox="0 0 120 120" fill="currentColor"><path d="M84.4 93.8V70.6h7.7v30.9H22.6V70.6h7.7v23.2z"/><path d="M38.8 68.4l37.8 7.9 1.6-7.6-37.8-7.9-1.6 7.6zm5-18l35 16.3 3.2-7-35-16.4-3.2 7.1zm9.7-17.2l29.7 24.7 4.9-5.9-29.7-24.7-4.9 5.9zm19.2-18.3l-6.2 4.6 23 31 6.2-4.6-23-31zM38 86h38.6v-7.7H38V86z"/></svg>
-        </div>
-        <h3 class="text-base font-semibold text-white group-hover:text-orange-400 transition-colors">StackOverflow</h3>
-        <p class="text-xs text-white/40 mt-1">Reputation, badges, and contributions</p>
-      </a>
-      <a href="/code/holopin" class="glass p-6 border border-white/5 hover:border-blue-500/30 transition-colors group">
-        <div class="h-10 w-10 rounded-xl bg-blue-500/10 flex items-center justify-center mb-3">
-          <span class="text-xl">🏷️</span>
-        </div>
-        <h3 class="text-base font-semibold text-white group-hover:text-blue-400 transition-colors">Holopin</h3>
-        <p class="text-xs text-white/40 mt-1">Open source contribution badges</p>
-      </a>
-    </div>
-  </main>
+    <nav class="section-nav" aria-label="Section navigation">
+      <a href="/">/home</a>
+      <span aria-hidden="true">·</span>
+      <a href="/me/">/me</a>
+      <span aria-hidden="true">·</span>
+      <a href="/work/">/work</a>
+      <span aria-hidden="true">·</span>
+      <a href="/library/">/library</a>
+      <span aria-hidden="true">·</span>
+      <a href="/gaming/">/gaming</a>
+      <span aria-hidden="true">·</span>
+      <a href="/connect/">/connect</a>
+      <span aria-hidden="true">·</span>
+      <a href="/system/">/system</a>
+    </nav>
+  </div>
 </Layout>
+
+<style>
+  .band { padding-block: clamp(1.5rem, 4vw, 2.5rem); }
+  .me-rows { display: flex; flex-direction: column; }
+  .me-link:hover .leader-name,
+  .me-link:hover .leader-fill,
+  .me-link:hover .leader-time { color: var(--archival); }
+  .me-link:hover { background: var(--archival-wash); }
+  .ranked-table a {
+    color: var(--archival);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    text-decoration-color: var(--rule);
+  }
+  .ranked-table a:hover { text-decoration-color: var(--archival); }
+  .band-trail {
+    margin: 1rem 0 0;
+    font-size: 0.8125rem;
+    color: var(--ink-soft);
+  }
+  .band-trail a {
+    color: var(--ink-soft);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    text-decoration-color: var(--rule);
+  }
+  .band-trail a:hover {
+    color: var(--archival);
+    text-decoration-color: var(--archival);
+  }
+</style>

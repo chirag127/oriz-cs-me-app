@@ -1,9 +1,11 @@
 ---
 /**
- * Movies Hub — Redesigned with only movie contents.
- * No colored image placeholders.
+ * Movies Hub — restyled to v2 datasheet with age-gate per
+ * knowledge/decisions/age-gating-policy.md. The listing page itself goes
+ * behind the gate so adult-flagged poster URLs never leak before the
+ * visitor confirms 18+.
  */
-import Layout from '../../layouts/Layout.astro';
+import AgeGatedLayout from '../../layouts/AgeGatedLayout.astro';
 import CommandPalette from
   '../../components/CommandPalette.astro';
 import EmptyState from '../../components/EmptyState.astro';
@@ -93,9 +95,11 @@ function getVisuals(title: string) {
 }
 ---
 
-<Layout
+<AgeGatedLayout
   title="Movies"
   description="Film diary — tracked via Trakt"
+  contentLabel="Films"
+  declinePath="/library/"
 >
   <CommandPalette />
 
@@ -344,4 +348,4 @@ function getVisuals(title: string) {
     </div>
 
   </div>
-</Layout>
+</AgeGatedLayout>

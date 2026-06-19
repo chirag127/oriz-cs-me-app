@@ -1,229 +1,269 @@
 ---
+/*
+ * CommandPalette — ⌘K trigger for v2 datasheet.
+ *
+ * Restyled from the v1 glassmorph version. Datasheet white card with a
+ * hairline border, no blur, no shadow. The palette opens via the Header's
+ * `[data-cmdk-open]` button and the Cmd/Ctrl+K shortcut wired in Header.astro.
+ *
+ * Static index of every section + every sub-page. No filtering API — the
+ * input client-side hides non-matching rows.
+ */
 ---
 
 <div
   id="command-palette"
-  class="hidden fixed inset-0 z-[100] flex items-start justify-center pt-[15vh]"
+  class="hidden palette-root"
+  role="dialog"
+  aria-modal="true"
+  aria-label="Command palette"
 >
-  <!-- Backdrop -->
-  <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" onclick="this.parentElement.classList.add('hidden')"></div>
-
-  <!-- Palette -->
-  <div class="relative w-full max-w-2xl mx-4 glass-strong rounded-2xl shadow-2xl overflow-hidden animate-slide-up">
-    <!-- Search Input -->
-    <div class="flex items-center gap-3 px-5 py-4 border-b border-[var(--color-border)]">
-      <svg class="h-5 w-5 text-[var(--color-text-muted)] flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-        <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-      </svg>
+  <div class="palette-backdrop" data-cmdk-close></div>
+  <div class="palette-card">
+    <div class="palette-input-row">
+      <span class="palette-prompt mono" aria-hidden="true">⌘</span>
       <input
         type="text"
         id="command-input"
-        placeholder="Search Chirag's site..."
-        class="flex-1 bg-transparent text-[var(--color-text-primary)] text-lg outline-none placeholder:text-[var(--color-text-muted)]"
+        placeholder="search…"
         autocomplete="off"
       />
-      <kbd class="hidden sm:inline-flex items-center rounded border border-[var(--color-border)] px-2 py-0.5 text-xs font-mono text-[var(--color-text-muted)]">
-        ESC
-      </kbd>
+      <kbd class="mono">ESC</kbd>
     </div>
-
-    <!-- Results -->
-    <div id="command-results" class="max-h-[50vh] overflow-y-auto p-2">
-      <div class="px-3 py-2">
-        <p class="text-xs font-semibold text-[var(--color-text-muted)] uppercase tracking-wider">Pages</p>
-      </div>
-      <a href="/" class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-white/5 transition-colors group">
-        <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-amber-400/10 text-amber-400">
-          <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
-        </div>
-        <div>
-          <p class="text-sm font-medium text-[var(--color-text-primary)]">Home</p>
-          <p class="text-xs text-[var(--color-text-muted)]">Chirag's homepage</p>
-        </div>
+    <hr class="hairline" />
+    <div id="command-results" class="palette-results">
+      <p class="palette-eyebrow mono">SECTIONS</p>
+      <a href="/" class="palette-row">
+        <span class="palette-row-key mono">/</span>
+        <span class="palette-row-name">home</span>
+        <span class="palette-row-desc">datasheet hub</span>
       </a>
-      <a href="/work" class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-white/5 transition-colors group">
-        <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-amber-500/10 text-amber-500">
-          <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
-        </div>
-        <div>
-          <p class="text-sm font-medium text-[var(--color-text-primary)]">Chirag's Work</p>
-          <p class="text-xs text-[var(--color-text-muted)]">Career, experience, education</p>
-        </div>
+      <a href="/me/" class="palette-row">
+        <span class="palette-row-key mono">/me</span>
+        <span class="palette-row-name">about</span>
+        <span class="palette-row-desc">numeric aggregates</span>
       </a>
-      <a href="/code" class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-white/5 transition-colors group">
-        <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-500/10 text-emerald-500">
-          <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"/></svg>
-        </div>
-        <div>
-          <p class="text-sm font-medium text-[var(--color-text-primary)]">Chirag's Code</p>
-          <p class="text-xs text-[var(--color-text-muted)]">GitHub repos, LeetCode, stats</p>
-        </div>
+      <a href="/work/" class="palette-row">
+        <span class="palette-row-key mono">/work</span>
+        <span class="palette-row-name">career &amp; projects</span>
+        <span class="palette-row-desc">resume + projects</span>
       </a>
-      <a href="/library" class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-white/5 transition-colors group">
-        <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-rose-500/10 text-rose-500">
-          <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
-        </div>
-        <div>
-          <p class="text-sm font-medium text-[var(--color-text-primary)]">Chirag's Library</p>
-          <p class="text-xs text-[var(--color-text-muted)]">Movies, anime, books, music</p>
-        </div>
+      <a href="/code/" class="palette-row">
+        <span class="palette-row-key mono">/code</span>
+        <span class="palette-row-name">code</span>
+        <span class="palette-row-desc">repos · packages · stats</span>
       </a>
-      <a href="/gaming" class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-white/5 transition-colors group">
-        <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-violet-500/10 text-violet-500">
-          <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z"/></svg>
-        </div>
-        <div>
-          <p class="text-sm font-medium text-[var(--color-text-primary)]">Chirag's Gaming</p>
-          <p class="text-xs text-[var(--color-text-muted)]">Games, chess, speedruns</p>
-        </div>
+      <a href="/library/" class="palette-row">
+        <span class="palette-row-key mono">/library</span>
+        <span class="palette-row-name">library</span>
+        <span class="palette-row-desc">films · books · music · anime</span>
       </a>
-      <a href="/connect" class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-white/5 transition-colors group">
-        <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-cyan-500/10 text-cyan-500">
-          <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/></svg>
-        </div>
-        <div>
-          <p class="text-sm font-medium text-[var(--color-text-primary)]">Connect with Chirag</p>
-          <p class="text-xs text-[var(--color-text-muted)]">Social profiles, contact, guestbook</p>
-        </div>
+      <a href="/gaming/" class="palette-row">
+        <span class="palette-row-key mono">/gaming</span>
+        <span class="palette-row-name">gaming</span>
+        <span class="palette-row-desc">chess · steam · speedruns</span>
       </a>
-      <a href="/me" class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-white/5 transition-colors group">
-        <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-orange-500/10 text-orange-500">
-          <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
-        </div>
-        <div>
-          <p class="text-sm font-medium text-[var(--color-text-primary)]">About Me</p>
-          <p class="text-xs text-[var(--color-text-muted)]">Story, philosophy, interests, gear</p>
-        </div>
+      <a href="/connect/" class="palette-row">
+        <span class="palette-row-key mono">/connect</span>
+        <span class="palette-row-name">connect</span>
+        <span class="palette-row-desc">contact · profiles</span>
+      </a>
+      <a href="/system/" class="palette-row">
+        <span class="palette-row-key mono">/system</span>
+        <span class="palette-row-name">system</span>
+        <span class="palette-row-desc">build manifest</span>
+      </a>
+      <a href="/status/" class="palette-row">
+        <span class="palette-row-key mono">/status</span>
+        <span class="palette-row-name">status</span>
+        <span class="palette-row-desc">ingester health</span>
+      </a>
+
+      <p class="palette-eyebrow mono">LIBRARY</p>
+      <a href="/library/movies/" class="palette-row palette-row-sub">
+        <span class="palette-row-key mono">/library/movies</span>
+        <span class="palette-row-desc">films watched, rated</span>
+      </a>
+      <a href="/library/books/" class="palette-row palette-row-sub">
+        <span class="palette-row-key mono">/library/books</span>
+        <span class="palette-row-desc">books read, queued</span>
+      </a>
+      <a href="/library/music/" class="palette-row palette-row-sub">
+        <span class="palette-row-key mono">/library/music</span>
+        <span class="palette-row-desc">last.fm scrobbles</span>
+      </a>
+      <a href="/library/anime/" class="palette-row palette-row-sub">
+        <span class="palette-row-key mono">/library/anime</span>
+        <span class="palette-row-desc">anilist tracking</span>
+      </a>
+      <a href="/library/manga/" class="palette-row palette-row-sub">
+        <span class="palette-row-key mono">/library/manga</span>
+        <span class="palette-row-desc">manga reading</span>
+      </a>
+
+      <p class="palette-eyebrow mono">WORK</p>
+      <a href="/work/career/" class="palette-row palette-row-sub">
+        <span class="palette-row-key mono">/work/career</span>
+        <span class="palette-row-desc">timeline</span>
+      </a>
+      <a href="/work/projects/" class="palette-row palette-row-sub">
+        <span class="palette-row-key mono">/work/projects</span>
+        <span class="palette-row-desc">open-source projects</span>
+      </a>
+      <a href="/work/skills/" class="palette-row palette-row-sub">
+        <span class="palette-row-key mono">/work/skills</span>
+        <span class="palette-row-desc">technical skills</span>
+      </a>
+      <a href="/work/education/" class="palette-row palette-row-sub">
+        <span class="palette-row-key mono">/work/education</span>
+        <span class="palette-row-desc">degrees + honors</span>
+      </a>
+
+      <p class="palette-eyebrow mono">CONNECT</p>
+      <a href="/connect/contact/" class="palette-row palette-row-sub">
+        <span class="palette-row-key mono">/connect/contact</span>
+        <span class="palette-row-desc">contact form</span>
+      </a>
+      <a href="/account/" class="palette-row palette-row-sub">
+        <span class="palette-row-key mono">/account</span>
+        <span class="palette-row-desc">sign in</span>
       </a>
     </div>
-
-    <!-- Sub Pages Section -->
-    <div class="px-3 py-2 border-t border-[var(--color-border)] mt-2">
-      <p class="text-xs font-semibold text-[var(--color-text-muted)] uppercase tracking-wider">Library</p>
-    </div>
-    <a href="/library/movies" class="flex items-center gap-3 px-4 py-2.5 rounded-xl hover:bg-white/5 transition-colors group ml-2">
-      <span class="text-sm text-[var(--color-text-primary)]">Movies & TV</span>
-    </a>
-    <a href="/library/anime" class="flex items-center gap-3 px-4 py-2.5 rounded-xl hover:bg-white/5 transition-colors group ml-2">
-      <span class="text-sm text-[var(--color-text-primary)]">Anime</span>
-    </a>
-    <a href="/library/books" class="flex items-center gap-3 px-4 py-2.5 rounded-xl hover:bg-white/5 transition-colors group ml-2">
-      <span class="text-sm text-[var(--color-text-primary)]">Books</span>
-    </a>
-    <a href="/library/music" class="flex items-center gap-3 px-4 py-2.5 rounded-xl hover:bg-white/5 transition-colors group ml-2">
-      <span class="text-sm text-[var(--color-text-primary)]">Music</span>
-    </a>
-    <a href="/library/manga" class="flex items-center gap-3 px-4 py-2.5 rounded-xl hover:bg-white/5 transition-colors group ml-2">
-      <span class="text-sm text-[var(--color-text-primary)]">Manga</span>
-    </a>
-    <a href="/library/videos" class="flex items-center gap-3 px-4 py-2.5 rounded-xl hover:bg-white/5 transition-colors group ml-2">
-      <span class="text-sm text-[var(--color-text-primary)]">Videos</span>
-    </a>
-    <a href="/library/podcasts" class="flex items-center gap-3 px-4 py-2.5 rounded-xl hover:bg-white/5 transition-colors group ml-2">
-      <span class="text-sm text-[var(--color-text-primary)]">Podcasts</span>
-    </a>
-
-    <div class="px-3 py-2 border-t border-[var(--color-border)] mt-2">
-      <p class="text-xs font-semibold text-[var(--color-text-muted)] uppercase tracking-wider">Work</p>
-    </div>
-    <a href="/work/skills" class="flex items-center gap-3 px-4 py-2.5 rounded-xl hover:bg-white/5 transition-colors group ml-2">
-      <span class="text-sm text-[var(--color-text-primary)]">Skills</span>
-    </a>
-    <a href="/work/projects" class="flex items-center gap-3 px-4 py-2.5 rounded-xl hover:bg-white/5 transition-colors group ml-2">
-      <span class="text-sm text-[var(--color-text-primary)]">Projects</span>
-    </a>
-    <a href="/work/career" class="flex items-center gap-3 px-4 py-2.5 rounded-xl hover:bg-white/5 transition-colors group ml-2">
-      <span class="text-sm text-[var(--color-text-primary)]">Career</span>
-    </a>
-    <a href="/work/education" class="flex items-center gap-3 px-4 py-2.5 rounded-xl hover:bg-white/5 transition-colors group ml-2">
-      <span class="text-sm text-[var(--color-text-primary)]">Education</span>
-    </a>
-    <a href="/work/certifications" class="flex items-center gap-3 px-4 py-2.5 rounded-xl hover:bg-white/5 transition-colors group ml-2">
-      <span class="text-sm text-[var(--color-text-primary)]">Certifications</span>
-    </a>
-
-    <div class="px-3 py-2 border-t border-[var(--color-border)] mt-2">
-      <p class="text-xs font-semibold text-[var(--color-text-muted)] uppercase tracking-wider">Connect</p>
-    </div>
-    <a href="/connect/contact" class="flex items-center gap-3 px-4 py-2.5 rounded-xl hover:bg-white/5 transition-colors group ml-2">
-      <span class="text-sm text-[var(--color-text-primary)]">Contact</span>
-    </a>
-    <a href="/connect/mastodon" class="flex items-center gap-3 px-4 py-2.5 rounded-xl hover:bg-white/5 transition-colors group ml-2">
-      <span class="text-sm text-[var(--color-text-primary)]">Mastodon</span>
-    </a>
-    <a href="/connect/bluesky" class="flex items-center gap-3 px-4 py-2.5 rounded-xl hover:bg-white/5 transition-colors group ml-2">
-      <span class="text-sm text-[var(--color-text-primary)]">Bluesky</span>
-    </a>
-    <a href="/connect/reddit" class="flex items-center gap-3 px-4 py-2.5 rounded-xl hover:bg-white/5 transition-colors group ml-2">
-      <span class="text-sm text-[var(--color-text-primary)]">Reddit</span>
-    </a>
-    <a href="/connect/hackernews" class="flex items-center gap-3 px-4 py-2.5 rounded-xl hover:bg-white/5 transition-colors group ml-2">
-      <span class="text-sm text-[var(--color-text-primary)]">HackerNews</span>
-    </a>
-
-    <div class="px-3 py-2 border-t border-[var(--color-border)] mt-2">
-      <p class="text-xs font-semibold text-[var(--color-text-muted)] uppercase tracking-wider">Code</p>
-    </div>
-    <a href="/code/repos" class="flex items-center gap-3 px-4 py-2.5 rounded-xl hover:bg-white/5 transition-colors group ml-2">
-      <span class="text-sm text-[var(--color-text-primary)]">Repositories</span>
-    </a>
-    <a href="/code/npm" class="flex items-center gap-3 px-4 py-2.5 rounded-xl hover:bg-white/5 transition-colors group ml-2">
-      <span class="text-sm text-[var(--color-text-primary)]">NPM Packages</span>
-    </a>
-    <a href="/code/stackoverflow" class="flex items-center gap-3 px-4 py-2.5 rounded-xl hover:bg-white/5 transition-colors group ml-2">
-      <span class="text-sm text-[var(--color-text-primary)]">StackOverflow</span>
-    </a>
-    <a href="/code/holopin" class="flex items-center gap-3 px-4 py-2.5 rounded-xl hover:bg-white/5 transition-colors group ml-2">
-      <span class="text-sm text-[var(--color-text-primary)]">Holopin Badges</span>
-    </a>
-
-    <div class="px-3 py-2 border-t border-[var(--color-border)] mt-2">
-      <p class="text-xs font-semibold text-[var(--color-text-muted)] uppercase tracking-wider">Me</p>
-    </div>
-    <a href="/me/story" class="flex items-center gap-3 px-4 py-2.5 rounded-xl hover:bg-white/5 transition-colors group ml-2">
-      <span class="text-sm text-[var(--color-text-primary)]">Story</span>
-    </a>
-    <a href="/me/philosophy" class="flex items-center gap-3 px-4 py-2.5 rounded-xl hover:bg-white/5 transition-colors group ml-2">
-      <span class="text-sm text-[var(--color-text-primary)]">Philosophy</span>
-    </a>
-    <a href="/me/interests" class="flex items-center gap-3 px-4 py-2.5 rounded-xl hover:bg-white/5 transition-colors group ml-2">
-      <span class="text-sm text-[var(--color-text-primary)]">Interests</span>
-    </a>
-    <a href="/me/gear" class="flex items-center gap-3 px-4 py-2.5 rounded-xl hover:bg-white/5 transition-colors group ml-2">
-      <span class="text-sm text-[var(--color-text-primary)]">Gear</span>
-    </a>
-    <a href="/me/finance" class="flex items-center gap-3 px-4 py-2.5 rounded-xl hover:bg-white/5 transition-colors group ml-2">
-      <span class="text-sm text-[var(--color-text-primary)]">Finance</span>
-    </a>
-
-    <div class="px-3 py-2 border-t border-[var(--color-border)] mt-2">
-      <p class="text-xs font-semibold text-[var(--color-text-muted)] uppercase tracking-wider">System</p>
-    </div>
-    <a href="/system/changelog" class="flex items-center gap-3 px-4 py-2.5 rounded-xl hover:bg-white/5 transition-colors group ml-2">
-      <span class="text-sm text-[var(--color-text-primary)]">Changelog</span>
-    </a>
   </div>
 </div>
 
 <script is:inline>
-  const input = document.getElementById('command-input');
-  const results = document.getElementById('command-results');
+  (function () {
+    var input = document.getElementById('command-input');
+    var results = document.getElementById('command-results');
+    var palette = document.getElementById('command-palette');
 
-  if (input && results) {
-    input.addEventListener('input', (e) => {
-      const query = e.target.value.toLowerCase();
-      const links = results.querySelectorAll('a');
-      links.forEach((link) => {
-        const text = link.textContent.toLowerCase();
-        link.style.display = text.includes(query) ? 'flex' : 'none';
+    function close() { if (palette) palette.classList.add('hidden'); }
+
+    document.querySelectorAll('[data-cmdk-close]').forEach(function (el) {
+      el.addEventListener('click', close);
+    });
+
+    if (input && results) {
+      input.addEventListener('input', function (e) {
+        var query = e.target.value.toLowerCase();
+        results.querySelectorAll('a').forEach(function (link) {
+          var text = link.textContent.toLowerCase();
+          link.style.display = text.indexOf(query) >= 0 ? '' : 'none';
+        });
       });
-    });
-
-    const observer = new MutationObserver(() => {
-      if (!document.getElementById('command-palette')?.classList.contains('hidden')) {
-        input.focus();
-      }
-    });
-    observer.observe(document.getElementById('command-palette'), { attributes: true, attributeFilter: ['class'] });
-  }
+    }
+  })();
 </script>
+
+<style>
+  .palette-root {
+    position: fixed;
+    inset: 0;
+    z-index: 100;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    padding-top: 12vh;
+  }
+  .palette-root.hidden { display: none; }
+  .palette-backdrop {
+    position: absolute;
+    inset: 0;
+    background: color-mix(in oklab, var(--ink) 32%, transparent);
+  }
+  .palette-card {
+    position: relative;
+    width: min(640px, calc(100% - 2rem));
+    background: var(--paper);
+    border: 1px solid var(--rule);
+    color: var(--ink);
+    max-height: 70vh;
+    display: flex;
+    flex-direction: column;
+  }
+  .palette-input-row {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.875rem 1rem;
+  }
+  .palette-prompt {
+    color: var(--ink-soft);
+    font-size: 14px;
+  }
+  #command-input {
+    flex: 1;
+    background: transparent;
+    border: 0;
+    outline: none;
+    color: var(--ink);
+    font-family: var(--font-mono);
+    font-size: 1rem;
+    padding: 0;
+    font-feature-settings: "tnum" 1, "zero" 1, "calt" 0;
+  }
+  #command-input::placeholder { color: var(--ink-soft); }
+  .palette-input-row kbd {
+    border: 1px solid var(--rule);
+    padding: 0.125rem 0.5rem;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--ink-soft);
+    background: var(--paper);
+    border-radius: 0;
+    letter-spacing: 0.06em;
+  }
+  .palette-results {
+    overflow-y: auto;
+    padding: 0.5rem 0.5rem 1rem;
+  }
+  .palette-eyebrow {
+    margin: 0.875rem 0.5rem 0.375rem;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.16em;
+    color: var(--ink-soft);
+    font-feature-settings: "tnum" 1, "zero" 1, "calt" 0;
+  }
+  .palette-row {
+    display: grid;
+    grid-template-columns: 9rem 1fr auto;
+    align-items: baseline;
+    gap: 0.75rem;
+    padding: 0.55rem 0.75rem;
+    color: var(--ink);
+    text-decoration: none;
+    font-size: 0.9375rem;
+  }
+  .palette-row:hover,
+  .palette-row:focus-visible {
+    background: var(--archival-wash);
+    color: var(--archival);
+    outline: none;
+  }
+  .palette-row-key {
+    color: var(--ink-soft);
+    font-size: 0.8125rem;
+    font-feature-settings: "tnum" 1, "zero" 1, "calt" 0;
+  }
+  .palette-row:hover .palette-row-key,
+  .palette-row:focus-visible .palette-row-key { color: var(--archival); }
+  .palette-row-name { color: inherit; }
+  .palette-row-desc {
+    color: var(--ink-soft);
+    font-size: 0.8125rem;
+    text-align: right;
+    font-family: var(--font-mono);
+    font-feature-settings: "tnum" 1, "zero" 1, "calt" 0;
+  }
+  .palette-row-sub { padding-left: 1rem; }
+
+  @media (max-width: 480px) {
+    .palette-row {
+      grid-template-columns: 1fr;
+      gap: 0.125rem;
+    }
+    .palette-row-desc { text-align: left; }
+  }
+</style>

@@ -157,7 +157,7 @@ const colorMap: Record<string, { bg: string; text: string; hover: string }> = {
         <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
             {
                 interests.map((item) => {
-                    const c = colorMap[item.color];
+                    const c = colorMap[item.color] ?? colorMap.amber!;
                     return (
                         <div class="glass-strong p-7 group">
                             <div class="flex items-center gap-3 mb-3">
@@ -219,7 +219,7 @@ const colorMap: Record<string, { bg: string; text: string; hover: string }> = {
                                 <div class="flex gap-3">
                                     {item.profiles.map((p) => {
                                         const pc =
-                                            colorMap[p.color] || colorMap.amber;
+                                            colorMap[p.color] || colorMap.amber!;
                                         return (
                                             <a
                                                 href={p.href}

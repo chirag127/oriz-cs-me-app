@@ -2,7 +2,7 @@
 /**
  * Top Rated Movies — sorted by rating (movies only)
  */
-import Layout from '../../layouts/Layout.astro';
+import AgeGatedLayout from '../../layouts/AgeGatedLayout.astro';
 import CommandPalette from
   '../../components/CommandPalette.astro';
 
@@ -45,7 +45,7 @@ function getVisuals(title: string) {
 }
 ---
 
-<Layout
+<AgeGatedLayout contentLabel="Films" declinePath="/library/"
   title="Top Rated Movies"
   description="Highest rated movies from my Trakt diary"
 >
@@ -143,4 +143,4 @@ function getVisuals(title: string) {
     </div>
 
   </div>
-</Layout>
+</AgeGatedLayout>

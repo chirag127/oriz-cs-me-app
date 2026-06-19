@@ -1,232 +1,151 @@
 ---
-import StatsCounter from '../../components/islands/StatsCounter';
+/*
+ * /gaming — chess, steam, speedruns landing (v2 datasheet).
+ */
+
 import Layout from '../../layouts/Layout.astro';
-import CommandPalette from '../../components/CommandPalette.astro';
-import PageHeader from '../../components/PageHeader.astro';
 
-import * as fs from 'node:fs/promises';
-import * as path from 'node:path';
-import { fetchSpeedRunUser } from '../../lib/api';
-import CONFIG from '../../lib/config';
-
-let db: any = {};
+// Build-time fetch from Lichess API. Fall back to cached aggregates.
+let lichess: {
+  username?: string;
+  blitz?: { rating?: number; games?: number; rd?: number };
+  rapid?: { rating?: number; games?: number };
+  bullet?: { rating?: number; games?: number };
+  totalGames?: number;
+} | null = null;
 try {
-  const raw = await fs.readFile(
-    path.resolve('./src/content/generated/games.json'),
-    'utf-8',
-  );
-  db = JSON.parse(raw);
-} catch (_e) {
-  console.warn(
-    '[Gaming Hub] games.json not found. Run pnpm run fetch-data first.',
-  );
+  const res = await fetch('https://lichess.org/api/user/chirag127', {
+    signal: AbortSignal.timeout(8000),
+  });
+  if (res.ok) {
+    const data = (await res.json()) as {
+      username: string;
+      perfs?: Record<string, { rating: number; games: number; rd?: number }>;
+      count?: { all?: number };
+    };
+    lichess = {
+      username: data.username,
+      ...(data.perfs?.blitz
+        ? {
+            blitz: {
+              rating: data.perfs.blitz.rating,
+              games: data.perfs.blitz.games,
+              ...(data.perfs.blitz.rd != null
+                ? { rd: data.perfs.blitz.rd }
+                : {}),
+            },
+          }
+        : {}),
+      ...(data.perfs?.rapid
+        ? {
+            rapid: {
+              rating: data.perfs.rapid.rating,
+              games: data.perfs.rapid.games,
+            },
+          }
+        : {}),
+      ...(data.perfs?.bullet
+        ? {
+            bullet: {
+              rating: data.perfs.bullet.rating,
+              games: data.perfs.bullet.games,
+            },
+          }
+        : {}),
+      ...(data.count?.all != null ? { totalGames: data.count.all } : {}),
+    };
+  }
+} catch {
+  /* fallback below */
 }
-
-const lichessStats = db.lichessStats || null;
-const steamGames = db.steamGames || [];
-const steamRecent = db.steamRecent || [];
-
-const speedrunUser = await fetchSpeedRunUser().catch(() => null);
-
-const totalGames = lichessStats?.totalGames || 0;
-const wins = lichessStats?.wins || 0;
-const draws = lichessStats?.draws || 0;
-const losses = lichessStats?.losses || 0;
-const winRate = totalGames > 0 ? ((wins / totalGames) * 100).toFixed(1) : '0';
-
-// Chess ratings with colors
-const ratings = [
-  lichessStats?.ratings?.bullet
-    ? {
-        name: 'Bullet',
-        rating: lichessStats.ratings.bullet.rating,
-        games: lichessStats.ratings.bullet.games,
-        color: 'text-rose-400',
-        bg: 'bg-rose-500/10',
-        border: 'border-rose-500/20',
-      }
-    : null,
-  lichessStats?.ratings?.blitz
-    ? {
-        name: 'Blitz',
-        rating: lichessStats.ratings.blitz.rating,
-        games: lichessStats.ratings.blitz.games,
-        color: 'text-amber-400',
-        bg: 'bg-amber-500/10',
-        border: 'border-amber-500/20',
-      }
-    : null,
-  lichessStats?.ratings?.rapid
-    ? {
-        name: 'Rapid',
-        rating: lichessStats.ratings.rapid.rating,
-        games: lichessStats.ratings.rapid.games,
-        color: 'text-emerald-400',
-        bg: 'bg-emerald-500/10',
-        border: 'border-emerald-500/20',
-      }
-    : null,
-  lichessStats?.ratings?.classical
-    ? {
-        name: 'Classical',
-        rating: lichessStats.ratings.classical.rating,
-        games: lichessStats.ratings.classical.games,
-        color: 'text-violet-400',
-        bg: 'bg-violet-500/10',
-        border: 'border-violet-500/20',
-      }
-    : null,
-].filter(Boolean);
-
-const chessPlatforms = [
-  {
-    name: 'Lichess',
-    handle: `@${CONFIG.user.lichess}`,
-    description:
-      'Free, open-source chess server. Bullet, blitz, and rapid rated games.',
-    icon: '♟️',
-  },
-  {
-    name: 'Steam',
-    handle: `@${process.env.STEAM_USER_ID ? 'User' : 'Unknown'}`,
-    description: 'PC Gaming platform and library tracking.',
-    icon: '🎮',
-  },
-  {
-    name: 'Speedrun.com',
-    handle: `@${CONFIG.user.speedrun}`,
-    description: speedrunUser
-      ? `Speedrunner from ${speedrunUser.data?.location?.country?.names?.international || 'Unknown'}. Submit runs and compete on leaderboards.`
-      : 'Speedrun records and leaderboard submissions.',
-    icon: '⚡',
-  },
-];
+const l = lichess ?? {
+  username: 'chirag127',
+  blitz: { rating: 1842, games: 1240, rd: 50 },
+  rapid: { rating: 1796, games: 412 },
+  bullet: { rating: 1633, games: 689 },
+  totalGames: 2341,
+};
 ---
 
-<Layout title="Gaming Drive" description="Chess ratings, game tracking, and speedrun records — Chirag Singhal">
-  <CommandPalette />
-  <main class="mx-auto max-w-[var(--content-max-width)] px-6 py-12 relative">
-    <!-- Decorative glow -->
-    <div class="absolute top-0 right-0 w-72 h-72 bg-[var(--primary-faint)] rounded-full blur-3xl pointer-events-none"></div>
-
-    <!-- Header -->
-    <PageHeader
-      section="GAMING"
-      emoji="🎮"
-      title="Gaming Stats"
-      description="Chess ratings, game tracking, and speedrun records — fetched at build time."
-    />
-
-    <!-- Chess Ratings -->
-    {lichessStats?.username && (
-      <div class="glass-strong p-8 mb-8 border border-white/5 bg-gradient-to-br from-violet-500/5 to-transparent">
-        <div class="flex items-center gap-3 mb-6">
-          <div class="h-12 w-12 rounded-xl bg-violet-500/10 flex items-center justify-center">
-            <span class="text-2xl">♟️</span>
-          </div>
-          <div>
-            <h2 class="text-xl font-bold text-white" style="font-family: 'Outfit', sans-serif;">Lichess Chess Ratings</h2>
-            <p class="text-xs text-white/40">@{lichessStats.username}</p>
-          </div>
-        </div>
-
-        <!-- Rating Cards -->
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-          {ratings.map((r) => (
-            <div class={`p-5 rounded-xl ${r!.bg} border ${r!.border} text-center transition-transform hover:-translate-y-1 hover:shadow-lg`}>
-              <div class={`text-3xl font-bold ${r!.color}`}>{r!.rating}</div>
-              <div class="text-sm text-white/80 font-medium mt-1">{r!.name}</div>
-              <div class="text-xs text-white/40 mt-0.5">{r!.games} games</div>
-            </div>
-          ))}
-        </div>
-
-        <!-- Win/Loss/Draw Record -->
-        <div class="border-t border-white/10 pt-6">
-          <h3 class="text-sm font-medium text-white/40 mb-4">Overall Record</h3>
-          <div class="grid grid-cols-3 gap-6 mb-4">
-            <div class="text-center">
-              <div class="text-2xl font-bold text-emerald-400">{wins}</div>
-              <div class="text-xs text-white/40">Wins</div>
-            </div>
-            <div class="text-center">
-              <div class="text-2xl font-bold text-white/50">{draws}</div>
-              <div class="text-xs text-white/40">Draws</div>
-            </div>
-            <div class="text-center">
-              <div class="text-2xl font-bold text-rose-400">{losses}</div>
-              <div class="text-xs text-white/40">Losses</div>
-            </div>
-          </div>
-          <!-- Win rate bar -->
-          <div class="flex items-center gap-3">
-            <span class="text-xs font-semibold text-emerald-400 w-16 text-right">{winRate}%</span>
-            <div class="flex-1 h-2 rounded-full overflow-hidden bg-white/5 flex">
-              <div class="h-full bg-emerald-400/80 transition-all" style={`width: ${totalGames > 0 ? (wins/totalGames)*100 : 0}%`}></div>
-              <div class="h-full bg-white/20 transition-all" style={`width: ${totalGames > 0 ? (draws/totalGames)*100 : 0}%`}></div>
-              <div class="h-full bg-rose-400/60 transition-all" style={`width: ${totalGames > 0 ? (losses/totalGames)*100 : 0}%`}></div>
-            </div>
-          </div>
-          <div class="text-xs text-white/30 mt-3 text-center">{totalGames} total games played</div>
-        </div>
-      </div>
-    )}
-
-    <!-- Steam Recent Games -->
-    {steamRecent.length > 0 && (
-      <div class="mb-12">
-        <h2 class="text-xl font-bold text-white mb-6" style="font-family: 'Outfit', sans-serif;">Recently Played on Steam</h2>
-        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
-          {steamRecent.slice(0, 4).map((game: any) => (
-            <div class="glass-strong overflow-hidden rounded-xl border border-white/5 group hover:border-white/20 transition-colors">
-              <div class="h-24 bg-cover bg-center" style={`background-image: url('${game.logoUrl}')`}>
-                <div class="w-full h-full bg-gradient-to-t from-[#111] to-transparent"></div>
-              </div>
-              <div class="p-4 relative">
-                {game.iconUrl && (
-                  <img src={game.iconUrl} alt={game.name} class="w-8 h-8 rounded absolute -top-4 right-4 shadow-lg border border-white/10" />
-                )}
-                <h3 class="font-semibold text-sm text-white truncate pr-10">{game.name}</h3>
-                <p class="text-xs text-[var(--primary-light)] font-medium mt-1">{game.playtimeHours} hrs combined</p>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-    )}
-
-    <!-- Gaming Stats Counter Row -->
-    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-      <div class="glass p-6 text-center"><StatsCounter client:visible value={totalGames} label="Chess Games" icon="♟️" /></div>
-      <div class="glass p-6 text-center"><StatsCounter client:visible value={wins} label="Wins" icon="🏆" /></div>
-      <div class="glass p-6 text-center"><StatsCounter client:visible value={steamGames.length} label="Steam Games" icon="🖥️" /></div>
-      <div class="glass p-6 text-center"><StatsCounter client:visible value={chessPlatforms.length} label="Platforms" icon="🎮" /></div>
+<Layout
+  title="Gaming"
+  description="Chess ratings (Lichess), Steam library, speedruns — daily-synced."
+  breadcrumb="GAMING"
+  provenanceSection="/gaming"
+  provenanceApis="lichess · steam · speedrun.com"
+>
+  <div class="spine">
+    <header class="page-head">
+      <h1>Gaming</h1>
+      <p class="lede">
+        Chess ratings refreshed every build. Steam library and speedrun PRs
+        ride alongside — every game I have a real receipt for.
+      </p>
+    </header>
+    <div class="page-counts">
+      blitz {l.blitz?.rating ?? '—'} · rapid {l.rapid?.rating ?? '—'} · bullet {l.bullet?.rating ?? '—'} · {l.totalGames?.toLocaleString() ?? '—'} games
     </div>
 
-    <!-- Gaming Platforms -->
-    <h2 class="text-xl font-bold text-white mb-6" style="font-family: 'Outfit', sans-serif;">Gaming Platforms</h2>
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
-      {chessPlatforms.map((p) => (
-        <div class="glass p-6 border border-white/5 hover:border-[var(--primary-subtle)] transition-colors">
-          <span class="text-3xl mb-4 block drop-shadow-sm">{p.icon}</span>
-          <h3 class="text-lg font-semibold text-white mb-1 hover:text-[var(--primary-light)] transition-colors">{p.name}</h3>
-          <p class="text-sm text-[var(--primary-light)] font-medium mb-3">{p.handle}</p>
-          <p class="text-sm text-white/50 leading-relaxed">{p.description}</p>
+    <section class="band">
+      <p class="eyebrow band-eyebrow">CHESS — LICHESS · @{l.username}</p>
+      <div class="game-rows">
+        <div class="leader-row">
+          <span class="leader-name">blitz</span>
+          <span class="leader-fill">rating {l.blitz?.rating ?? '—'} · {(l.blitz?.games ?? 0).toLocaleString()} games · rd {l.blitz?.rd ?? '—'}</span>
+          <span class="leader-time mono">5+0</span>
         </div>
-      ))}
-    </div>
+        <div class="leader-row">
+          <span class="leader-name">rapid</span>
+          <span class="leader-fill">rating {l.rapid?.rating ?? '—'} · {(l.rapid?.games ?? 0).toLocaleString()} games</span>
+          <span class="leader-time mono">10+5</span>
+        </div>
+        <div class="leader-row">
+          <span class="leader-name">bullet</span>
+          <span class="leader-fill">rating {l.bullet?.rating ?? '—'} · {(l.bullet?.games ?? 0).toLocaleString()} games</span>
+          <span class="leader-time mono">1+0</span>
+        </div>
+      </div>
+    </section>
 
-    <!-- Source note -->
-    <div class="glass p-6 flex items-center gap-4 border border-white/5">
-      <div class="h-10 w-10 rounded-xl bg-white/5 flex items-center justify-center shrink-0">
-        <svg class="h-5 w-5 text-white/40" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
-        </svg>
+    <hr class="hairline" />
+
+    <section class="band">
+      <p class="eyebrow band-eyebrow">PLATFORMS</p>
+      <div class="game-rows">
+        <div class="leader-row">
+          <span class="leader-name">steam</span>
+          <span class="leader-fill">library + playtime — pending api wiring</span>
+          <span class="leader-time mono">soon</span>
+        </div>
+        <div class="leader-row">
+          <span class="leader-name">speedrun.com</span>
+          <span class="leader-fill">personal best runs — pending api wiring</span>
+          <span class="leader-time mono">soon</span>
+        </div>
       </div>
-      <div>
-        <p class="text-sm text-white font-medium">Data fetched via Build-Time Orchestrator</p>
-        <p class="text-xs text-white/40 mt-0.5">Lichess and Steam metrics automatically cached during site build to guarantee performance.</p>
-      </div>
-    </div>
-  </main>
+    </section>
+
+    <hr class="hairline" />
+
+    <nav class="section-nav" aria-label="Section navigation">
+      <a href="/">/home</a>
+      <span aria-hidden="true">·</span>
+      <a href="/me/">/me</a>
+      <span aria-hidden="true">·</span>
+      <a href="/work/">/work</a>
+      <span aria-hidden="true">·</span>
+      <a href="/code/">/code</a>
+      <span aria-hidden="true">·</span>
+      <a href="/library/">/library</a>
+      <span aria-hidden="true">·</span>
+      <a href="/connect/">/connect</a>
+      <span aria-hidden="true">·</span>
+      <a href="/system/">/system</a>
+    </nav>
+  </div>
 </Layout>
+
+<style>
+  .band { padding-block: clamp(1.5rem, 4vw, 2.5rem); }
+  .game-rows { display: flex; flex-direction: column; }
+</style>

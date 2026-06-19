@@ -1,6 +1,34 @@
+import {
+  type FirebaseApp,
+  getApps as getFirebaseApps,
+  initializeApp as firebaseInitializeApp,
+} from 'firebase/app';
 import type { initializeApp } from 'firebase/app';
+import {
+  type Auth,
+  getAuth as firebaseGetAuthInstance,
+} from 'firebase/auth';
 import type { getAuth, User } from 'firebase/auth';
+import {
+  type Firestore,
+  getFirestore as firebaseGetFirestoreInstance,
+} from 'firebase/firestore';
 import type { getFirestore, Timestamp } from 'firebase/firestore';
+
+/*
+ * Lazy-proxy auth + db (shared family pattern from oriz-home).
+ *
+ * The legacy ADMIN_EMAIL / saveChatMessage / phone-auth surface remains
+ * in this file so the existing AuthBanner / ChatWidget / AdminDashboard
+ * islands still compile. The new v2 chrome (AccountPanel + FinishSignIn
+ * components below) reaches for `auth` and `db` directly via the proxy.
+ *
+ * The family Firebase project is `oriz-app` (auth.oriz.in). The legacy
+ * widgets used a separate `chirag-127` project — that project remains the
+ * default for the legacy flows so we don't break logged-in users mid-deploy.
+ * The new v2 lazy proxy below targets the FAMILY project so a user signed in
+ * across `oriz.in` is also signed in here.
+ */
 
 // Admin email
 export const ADMIN_EMAIL = 'whyiswhen@gmail.com';
@@ -313,3 +341,51 @@ export async function subscribeToChatMessages(
 }
 
 export type { User };
+
+// ── Family lazy-proxy auth + db (oriz-app project) ─────────────────────
+//
+// Mirrors oriz-home/src/lib/firebase.ts. Sites in the family share Firebase
+// project `oriz-app` so a user signed in on oriz.in is signed in everywhere.
+//
+// Lazy via Proxy so server-side prerender of pages that import this module
+// never crashes — Firebase is only touched once a property is read in the
+// browser.
+
+const FAMILY_FIREBASE_CONFIG = {
+  apiKey: import.meta.env.PUBLIC_FIREBASE_API_KEY,
+  authDomain: import.meta.env.PUBLIC_FIREBASE_AUTH_DOMAIN,
+  projectId: import.meta.env.PUBLIC_FIREBASE_PROJECT_ID,
+  storageBucket: import.meta.env.PUBLIC_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: import.meta.env.PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
+  appId: import.meta.env.PUBLIC_FIREBASE_APP_ID,
+};
+
+let _familyApp: FirebaseApp | null = null;
+let _familyAuth: Auth | null = null;
+let _familyDb: Firestore | null = null;
+
+function getFamilyApp(): FirebaseApp {
+  if (_familyApp) return _familyApp;
+  // Family app is named so it doesn't collide with the legacy chirag-127
+  // default app initialized via async getFirebaseApp() above.
+  const existing = getFirebaseApps().find((a) => a.name === 'oriz-family');
+  _familyApp =
+    existing ??
+    firebaseInitializeApp(FAMILY_FIREBASE_CONFIG, 'oriz-family');
+  return _familyApp;
+}
+
+export const auth: Auth = new Proxy({} as Auth, {
+  get(_t, p) {
+    if (!_familyAuth) _familyAuth = firebaseGetAuthInstance(getFamilyApp());
+    return Reflect.get(_familyAuth, p);
+  },
+}) as Auth;
+
+export const familyDb: Firestore = new Proxy({} as Firestore, {
+  get(_t, p) {
+    if (!_familyDb) _familyDb = firebaseGetFirestoreInstance(getFamilyApp());
+    return Reflect.get(_familyDb, p);
+  },
+}) as Firestore;
+

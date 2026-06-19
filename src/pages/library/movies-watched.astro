@@ -1,5 +1,5 @@
 ---
-import Layout from '../../layouts/Layout.astro';
+import AgeGatedLayout from '../../layouts/AgeGatedLayout.astro';
 import CommandPalette from '../../components/CommandPalette.astro';
 
 import * as fs from 'node:fs/promises';
@@ -65,7 +65,7 @@ function getVisuals(title: string) {
 }
 ---
 
-<Layout title="Watched Movies" description="All movies Chirag Singhal has watched">
+<AgeGatedLayout contentLabel="Films" declinePath="/library/" title="Watched Movies" description="All movies Chirag Singhal has watched">
   <CommandPalette />
   <main class="mx-auto max-w-[var(--content-max-width)] px-6 py-12">
     <a href="/library/movies" class="inline-flex items-center gap-2 text-sm text-white/40 hover:text-white/60 mb-8 transition-colors">
@@ -165,4 +165,4 @@ function getVisuals(title: string) {
     </div>
 
   </main>
-</Layout>
+</AgeGatedLayout>
