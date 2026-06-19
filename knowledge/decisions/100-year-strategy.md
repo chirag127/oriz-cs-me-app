@@ -73,21 +73,36 @@ This means:
 - Inner-life content is ALSO public (per §6) but is on its own page
   rather than the front door.
 
-### 6. Public/private line: everything public, including journal
+### 6. Public/private line: revised — journal moves OUT, age-gates in
 
-This is the single highest-stakes decision in the doc. Radical
-transparency is the thesis: a recruiter who values it hires Chirag,
-one who doesn't is a bad fit anyway.
+**The public site (me.oriz.in) does NOT publish journal entries.** The journal stays
+at `journal.oriz.in` (auth-gated by Firebase). me.oriz.in's `/me` section may
+surface NUMERIC aggregates from the journal API (entry count, streak, average
+length per month) but never the entry text.
 
-Caveats:
-- Journal entries get a 24h "edit window" before publishing (catches
-  the worst late-night writing).
-- Location data is downsampled to city level only — never raw GPS,
-  never timestamps below day-granularity.
-- Health vitals (heart rate, sleep) are aggregated weekly, never
-  per-event raw.
-- Re-read this section every birthday. If career has shifted, narrow
-  the public surface.
+Rationale: the journal contains personal, often unfiltered content that doesn't
+serve the recruiter audience and creates real career risk. Publishing it
+publicly was a thesis-level overreach. Numeric aggregates preserve the
+"I keep a journal" signal without leaking content.
+
+**Some content sections are age-gated** (movies, anime, possibly others). When
+a tracked item carries adult-content metadata, the page rendering it goes behind
+an 18+ confirmation gate. See [`age-gating-policy.md`](./age-gating-policy.md).
+
+Public/private/gated tiers, in full:
+
+- **Public (default)** — career, code, books, music, fitness aggregates, places
+  (city-level), code commits, manual logs marked safe-for-work.
+- **Age-gated 18+** — film/anime/manga/game entries with adult-content flag.
+  Visible only after the visitor confirms 18+ via the AgeGate component.
+- **Aggregates only** — journal (count + streak + monthly word count, never
+  text). Inner-life metrics (sleep, mood, weekly only).
+- **Hidden** — raw GPS, exact timestamps below day-granularity, raw heart
+  rate, anything tagged `private` in the canonical store.
+
+Re-read this section every birthday. The age-gate policy in particular should
+be reviewed against current jurisdictional rules — UK Online Safety Act / EU
+DSA / India's IT Rules — annually.
 
 ### 7. Negative data: publish with framing
 
@@ -245,6 +260,10 @@ On Chirag's birthday each year:
       grep the data. If it's unreadable for any reason, that's an
       emergency.
 - [ ] Re-read this whole doc. Update if life or career has shifted.
+- [ ] Re-read [`age-gating-policy.md`](./age-gating-policy.md) against current
+      jurisdictional rules (UK OSA / EU DSA / India IT Rules / etc).
+- [ ] Audit which sources have ever been age-gated — confirm the gate is still
+      doing its job and not over- or under-blocking.
 
 ---
 
@@ -254,3 +273,7 @@ On Chirag's birthday each year:
 - Family rules: [`design-briefs/_FAMILY-RULES.md`](../../../../design-briefs/_FAMILY-RULES.md)
 - Superseded predecessor: [`why-firestore-not-turso.md`](./why-firestore-not-turso.md) (still
   in repo as historical context — do not follow its conclusions)
+- Age-gating policy: [`age-gating-policy.md`](./age-gating-policy.md) — when content
+  requires an 18+ gate and how the site implements it.
+- Ingester contract: [`ingester-contract.md`](./ingester-contract.md) — every
+  ingester must satisfy this for the 7-day fix-or-pause SLA to work.
