@@ -1,0 +1,26 @@
+---
+/**
+ * BaseLayout — thin wrapper around @chirag127/astro-shell's Base.
+ *
+ * The shell handles <head>, theme tokens, and named slots (head, seo,
+ * analytics, consent, header, footer). We just import its global
+ * stylesheet here so every page gets Tailwind v4 + the family theme
+ * tokens.
+ *
+ * TODO(astro-chrome): when @chirag127/astro-chrome ships, mount its
+ * <Header />, <Footer />, <Analytics />, <Consent />, and <Auth />
+ * components into the shell's named slots from this file.
+ */
+import Base from "@chirag127/astro-shell/layouts/Base.astro";
+import "../styles.css";
+
+export type Props = Parameters<typeof Base>[0];
+const props = Astro.props;
+---
+
+<Base {...props}>
+	<slot name="head" slot="head" />
+	<slot name="seo" slot="seo" />
+	<slot />
+	<slot name="footer" slot="footer" />
+</Base>

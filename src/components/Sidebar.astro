@@ -1,483 +1,60 @@
 ---
 /**
- * Sidebar Navigation — Desktop persistent, mobile overlay.
- * Desktop ≥1024px: 240px, collapsible to 64px icon-only.
- * Tablet 768–1023px: 64px icon-only, expand on hover.
- * Mobile <768px: hidden, overlay via hamburger.
+ * Sidebar — minimal navigation listing the 6 routes of me.oriz.in.
  *
- * The nav is a 3-level hierarchy (section → subsection → page) so every
- * existing route is reachable. A subsection is a logical group that
- * doesn't need its own landing page — clicking the group toggles the
- * children rather than navigating.
+ * Stays static and link-only for now. astro-chrome will eventually
+ * own the global header/nav; this sidebar is a per-page island
+ * specific to the personal site.
  */
 
-const currentPath = Astro.url.pathname;
-
-// ─── Types ────────────────────────────────────────────────────────────
-interface NavLeaf {
-  name: string;
-  path: string;
-  emoji?: string;
-}
-
-interface NavGroup {
-  name: string;
-  emoji?: string;
-  // Group has no path of its own — toggling it expands/collapses children.
-  children: NavLeaf[];
-}
-
-interface NavSection {
-  name: string;
-  path: string;
-  emoji?: string;
-  exact?: boolean;
-  // Children may be leaves (level 2) or groups (level 2 → level 3).
-  children?: Array<NavLeaf | NavGroup>;
-}
-
-// `'children' in x` distinguishes a NavGroup from a NavLeaf.
-function isGroup(x: NavLeaf | NavGroup): x is NavGroup {
-  return 'children' in x;
-}
-
-// ─── Nav config (3 levels) ────────────────────────────────────────────
-// Every route under src/pages/ should appear here. New pages go into the
-// closest group; introduce a new subsection only when ≥2 leaves share a
-// theme.
-const navSections: NavSection[] = [
-  {
-    name: 'Home',
-    path: '/',
-    emoji: '🏠',
-    exact: true,
-  },
-  {
-    name: 'Work',
-    path: '/work',
-    emoji: '💼',
-    children: [
-      { name: 'Career', path: '/work/career', emoji: '🚀' },
-      { name: 'Skills', path: '/work/skills', emoji: '🎯' },
-      { name: 'Projects', path: '/work/projects', emoji: '🏗️' },
-      { name: 'Education', path: '/work/education', emoji: '🎓' },
-      { name: 'Certifications', path: '/work/certifications', emoji: '📜' },
-    ],
-  },
-  {
-    name: 'Code',
-    path: '/code',
-    emoji: '💻',
-    children: [
-      { name: 'Dashboard', path: '/code', emoji: '📊' },
-      { name: 'Repositories', path: '/code/repos', emoji: '📦' },
-      { name: 'NPM', path: '/code/npm', emoji: '📮' },
-      { name: 'StackOverflow', path: '/code/stackoverflow', emoji: '🗨️' },
-      { name: 'Holopin', path: '/code/holopin', emoji: '🏅' },
-    ],
-  },
-  {
-    name: 'Library',
-    path: '/library',
-    emoji: '📚',
-    children: [
-      { name: 'Overview', path: '/library', emoji: '🗂️' },
-      {
-        name: 'Movies',
-        emoji: '🎬',
-        children: [
-          { name: 'All', path: '/library/movies', emoji: '🎬' },
-          { name: 'Watched', path: '/library/movies-watched', emoji: '👁️' },
-          { name: 'Watchlist', path: '/library/movies-watchlist', emoji: '📋' },
-          { name: 'Rated', path: '/library/movies-rated', emoji: '⭐' },
-        ],
-      },
-      {
-        name: 'TV Shows',
-        emoji: '📺',
-        children: [
-          { name: 'All', path: '/library/shows', emoji: '📺' },
-          { name: 'Watched', path: '/library/shows-watched', emoji: '👁️' },
-        ],
-      },
-      {
-        name: 'Anime',
-        emoji: '🌸',
-        children: [
-          { name: 'All', path: '/library/anime', emoji: '🌸' },
-          { name: 'Completed', path: '/library/anime-completed', emoji: '✅' },
-          { name: 'Plan to watch', path: '/library/anime-plan-to-watch', emoji: '📋' },
-        ],
-      },
-      {
-        name: 'Books',
-        emoji: '📖',
-        children: [
-          { name: 'All', path: '/library/books', emoji: '📖' },
-          { name: 'Read', path: '/library/books-read', emoji: '✅' },
-          { name: 'Want to read', path: '/library/books-want-to-read', emoji: '📋' },
-        ],
-      },
-      {
-        name: 'Music',
-        emoji: '🎵',
-        children: [
-          { name: 'Overview', path: '/library/music', emoji: '🎵' },
-          { name: 'Recent', path: '/library/music-recent', emoji: '⏱️' },
-          { name: 'Top artists', path: '/library/music-top-artists', emoji: '🎤' },
-          { name: 'Top tracks', path: '/library/music-top-tracks', emoji: '🎶' },
-          { name: 'Mixcloud', path: '/library/mixcloud', emoji: '🎧' },
-        ],
-      },
-      { name: 'Manga', path: '/library/manga', emoji: '📕' },
-      { name: 'Podcasts', path: '/library/podcasts', emoji: '🎙️' },
-      { name: 'Videos', path: '/library/videos', emoji: '🎥' },
-      { name: 'Twitch', path: '/library/twitch', emoji: '🎮' },
-    ],
-  },
-  {
-    name: 'Gaming',
-    path: '/gaming',
-    emoji: '🎮',
-  },
-  {
-    name: 'Me',
-    path: '/me',
-    emoji: '🧑',
-    children: [
-      { name: 'Overview', path: '/me', emoji: '👋' },
-      { name: 'Story', path: '/me/story', emoji: '📖' },
-      { name: 'Philosophy', path: '/me/philosophy', emoji: '💭' },
-      { name: 'Interests', path: '/me/interests', emoji: '✨' },
-      { name: 'Gear', path: '/me/gear', emoji: '🛠️' },
-      { name: 'Finance', path: '/me/finance', emoji: '💰' },
-    ],
-  },
-  {
-    name: 'Connect',
-    path: '/connect',
-    emoji: '🔗',
-    children: [
-      { name: 'Overview', path: '/connect', emoji: '🌐' },
-      { name: 'Contact', path: '/connect/contact', emoji: '✉️' },
-      {
-        name: 'Social',
-        emoji: '🌍',
-        children: [
-          { name: 'Bluesky', path: '/connect/bluesky', emoji: '🦋' },
-          { name: 'Mastodon', path: '/connect/mastodon', emoji: '🐘' },
-          { name: 'Pixelfed', path: '/connect/pixelfed', emoji: '📸' },
-          { name: 'Reddit', path: '/connect/reddit', emoji: '👽' },
-          { name: 'Hacker News', path: '/connect/hackernews', emoji: '🟧' },
-        ],
-      },
-    ],
-  },
-  {
-    name: 'System',
-    path: '/system',
-    emoji: '⚙️',
-    children: [
-      { name: 'Settings', path: '/system', emoji: '⚙️' },
-      { name: 'Changelog', path: '/system/changelog', emoji: '📜' },
-      { name: 'Admin', path: '/system/admin', emoji: '🛡️' },
-    ],
-  },
+const routes = [
+	{ href: "/",        label: "Home" },
+	{ href: "/now",     label: "Now" },
+	{ href: "/uses",    label: "Uses" },
+	{ href: "/cv",      label: "CV" },
+	{ href: "/contact", label: "Contact" },
+	{ href: "/privacy", label: "Privacy" },
 ];
 
-/**
- * Determines whether a nav item is active based on current path.
- * Uses exact match for root path, partial match for others.
- */
-function isActive(path: string, exact?: boolean): boolean {
-  if (exact) return currentPath === path;
-  if (path === '/') return currentPath === '/';
-  return currentPath === path || currentPath.startsWith(`${path}/`);
-}
-
-/** Recursively check whether any descendant leaf is active. */
-function anyDescendantActive(node: NavLeaf | NavGroup): boolean {
-  if (isGroup(node)) return node.children.some((c) => isActive(c.path));
-  return isActive(node.path);
-}
+const current = Astro.url.pathname.replace(/\/$/, "") || "/";
 ---
 
-<!-- Sidebar overlay (mobile) -->
-<div
-  id="sidebar-overlay"
-  class="fixed inset-0 z-40 bg-black/60 backdrop-blur-sm
-    opacity-0 pointer-events-none transition-opacity
-    duration-300 lg:hidden"
-  aria-hidden="true"
-></div>
-
-<aside
-  id="sidebar"
-  class="fixed top-0 left-0 z-50 h-full
-    bg-[var(--surface-sidebar,rgba(10,10,14,0.95))]
-    backdrop-blur-xl
-    border-r border-[var(--border-default,rgba(255,255,255,0.07))]
-    flex flex-col
-    transition-all duration-300 ease-[var(--ease-out-expo)]
-    -translate-x-full lg:translate-x-0
-    w-[var(--sidebar-width,240px)]"
-  role="navigation"
-  aria-label="Main navigation"
->
-  <!-- Logo -->
-  <div class="flex items-center justify-between px-5 h-14
-    border-b border-[var(--border-subtle,rgba(255,255,255,0.04))]
-    flex-shrink-0">
-    <a href="/" class="flex items-center gap-3 group">
-      <div class="flex h-8 w-8 items-center justify-center
-        rounded-lg bg-gradient-to-br from-teal-400
-        to-violet-500 text-white font-bold text-xs
-        transition-transform group-hover:scale-110"
-        style="font-family: var(--font-display, 'Outfit');">
-        CS
-      </div>
-      <span class="sidebar-label text-sm font-bold
-        tracking-tight text-white/90
-        transition-opacity duration-200"
-        style="font-family: var(--font-display, 'Outfit');">
-        Chirag Singhal
-      </span>
-    </a>
-    <!-- Mobile close button -->
-    <button
-      id="sidebar-close"
-      class="lg:hidden flex items-center justify-center
-        h-8 w-8 rounded-lg text-white/40
-        hover:text-white hover:bg-white/5 transition-colors"
-      aria-label="Close navigation"
-      type="button"
-    >
-      <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24"
-        stroke="currentColor" stroke-width="2">
-        <path stroke-linecap="round" stroke-linejoin="round"
-          d="M6 18L18 6M6 6l12 12" />
-      </svg>
-    </button>
-  </div>
-
-  <!-- Nav links -->
-  <nav class="flex-1 overflow-y-auto py-4 px-3
-    scrollbar-hidden" aria-label="Site sections">
-    <ul class="space-y-1" role="list">
-      {navSections.map((section) => {
-        const active = isActive(section.path, section.exact);
-        const hasChildren = !!section.children && section.children.length > 0;
-        const childActive =
-          hasChildren && section.children!.some(anyDescendantActive);
-        const sectionExpanded = active || childActive;
-
-        return (
-          <li>
-            <a
-              href={section.path}
-              class:list={[
-                'group flex items-center gap-3 px-3 py-2',
-                'rounded-xl text-sm font-medium',
-                'transition-all duration-200',
-                active || childActive
-                  ? 'bg-gradient-to-r from-teal-500/10 to-violet-500/10 text-white border border-teal-500/20'
-                  : 'text-white/50 hover:text-white/80 hover:bg-white/[0.03] border border-transparent',
-              ]}
-              aria-current={active ? 'page' : undefined}
-            >
-              <span class="text-base leading-none flex-shrink-0" aria-hidden="true">
-                {section.emoji}
-              </span>
-              <span class="sidebar-label
-                transition-opacity duration-200">
-                {section.name}
-              </span>
-              {(active || childActive) && (
-                <span class="ml-auto h-1.5 w-1.5
-                  rounded-full bg-teal-400 animate-pulse
-                  sidebar-label" />
-              )}
-            </a>
-
-            {hasChildren && sectionExpanded && (
-              <ul class="mt-1 ml-[30px] space-y-0.5
-                border-l border-white/5 pl-3" role="list">
-                {section.children!.map((child) => {
-                  // Level 2: leaf or group
-                  if (isGroup(child)) {
-                    const groupActive = child.children.some((c) => isActive(c.path));
-                    return (
-                      <li>
-                        <details open={groupActive} class="group/sub">
-                          <summary class:list={[
-                            'sidebar-label flex items-center justify-between',
-                            'cursor-pointer list-none py-1.5 px-2',
-                            'rounded-lg text-xs font-medium',
-                            'transition-all duration-150',
-                            groupActive
-                              ? 'text-white/70'
-                              : 'text-white/35 hover:text-white/60 hover:bg-white/[0.02]',
-                          ]}>
-                            <span>{child.emoji && <span class="mr-1.5" aria-hidden="true">{child.emoji}</span>}{child.name}</span>
-                            <svg
-                              class="h-3 w-3 text-white/30
-                                transition-transform duration-200
-                                group-open/sub:rotate-90"
-                              fill="none"
-                              viewBox="0 0 24 24"
-                              stroke="currentColor"
-                              stroke-width="2"
-                              aria-hidden="true"
-                            >
-                              <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
-                            </svg>
-                          </summary>
-                          <ul class="mt-0.5 ml-2 space-y-0.5
-                            border-l border-white/5 pl-3" role="list">
-                            {child.children.map((leaf) => {
-                              const lActive = isActive(leaf.path);
-                              return (
-                                <li>
-                                  <a
-                                    href={leaf.path}
-                                    class:list={[
-                                      'sidebar-label block py-1 px-2',
-                                      'rounded-lg text-[11px] font-medium',
-                                      'transition-all duration-150',
-                                      lActive
-                                        ? 'text-teal-300 bg-teal-500/5'
-                                        : 'text-white/30 hover:text-white/60 hover:bg-white/[0.02]',
-                                    ]}
-                                    aria-current={lActive ? 'page' : undefined}
-                                  >
-                                    {leaf.emoji && <span class="mr-1.5" aria-hidden="true">{leaf.emoji}</span>}{leaf.name}
-                                  </a>
-                                </li>
-                              );
-                            })}
-                          </ul>
-                        </details>
-                      </li>
-                    );
-                  }
-                  const cActive = isActive(child.path);
-                  return (
-                    <li>
-                      <a
-                        href={child.path}
-                        class:list={[
-                          'sidebar-label block py-1.5 px-2',
-                          'rounded-lg text-xs font-medium',
-                          'transition-all duration-150',
-                          cActive
-                            ? 'text-teal-300 bg-teal-500/5'
-                            : 'text-white/35 hover:text-white/60 hover:bg-white/[0.02]',
-                        ]}
-                        aria-current={cActive ? 'page' : undefined}
-                      >
-                        {child.emoji && <span class="mr-1.5" aria-hidden="true">{child.emoji}</span>}{child.name}
-                      </a>
-                    </li>
-                  );
-                })}
-              </ul>
-            )}
-          </li>
-        );
-      })}
-    </ul>
-  </nav>
-
-  <!-- Sidebar footer -->
-  <div class="flex-shrink-0 px-3 py-3
-    border-t border-[var(--border-subtle,rgba(255,255,255,0.04))]">
-    <div class="flex items-center gap-2 px-3 py-2
-      rounded-xl bg-emerald-500/5 border
-      border-emerald-500/10">
-      <span class="h-2 w-2 rounded-full bg-emerald-400
-        animate-pulse flex-shrink-0"></span>
-      <span class="sidebar-label text-[10px] font-semibold
-        text-emerald-400/80 uppercase tracking-wider">
-        Available for hire
-      </span>
-    </div>
-  </div>
-</aside>
-
-<!-- Toggle script -->
-<script is:inline>
-  (function () {
-    var sidebar = document.getElementById('sidebar');
-    var overlay = document.getElementById('sidebar-overlay');
-    var btn = document.getElementById('sidebar-toggle');
-
-    function openSidebar() {
-      if (!sidebar || !overlay) return;
-      sidebar.classList.remove('-translate-x-full');
-      overlay.classList.remove('opacity-0', 'pointer-events-none');
-      overlay.classList.add('opacity-100');
-      document.body.style.overflow = 'hidden';
-    }
-
-    function closeSidebar() {
-      if (!sidebar || !overlay) return;
-      sidebar.classList.add('-translate-x-full');
-      overlay.classList.add('opacity-0', 'pointer-events-none');
-      overlay.classList.remove('opacity-100');
-      document.body.style.overflow = '';
-    }
-
-    function toggleSidebar() {
-      if (!sidebar) return;
-      if (sidebar.classList.contains('-translate-x-full')) {
-        openSidebar();
-      } else {
-        closeSidebar();
-      }
-    }
-
-    if (btn) btn.addEventListener('click', toggleSidebar);
-    var closeBtn = document.getElementById('sidebar-close');
-    if (closeBtn) closeBtn.addEventListener('click', closeSidebar);
-    if (overlay) overlay.addEventListener('click', closeSidebar);
-
-    document.addEventListener('keydown', function (e) {
-      if (e.key === 'Escape') closeSidebar();
-    });
-
-    // Close sidebar when clicking a nav link on mobile
-    var navLinks = document.querySelectorAll('#sidebar nav a');
-    for (var i = 0; i < navLinks.length; i++) {
-      navLinks[i].addEventListener('click', function () {
-        if (window.innerWidth < 1024) {
-          closeSidebar();
-        }
-      });
-    }
-
-    // Expose for external use
-    window.__sidebar = { open: openSidebar, close: closeSidebar, toggle: toggleSidebar };
-  })();
-</script>
+<nav class="sidebar" aria-label="Primary">
+	<ul>
+		{routes.map((r) => {
+			const active = (r.href === "/" ? current === "/" : current === r.href);
+			return (
+				<li>
+					<a href={r.href} aria-current={active ? "page" : undefined}>
+						{r.label}
+					</a>
+				</li>
+			);
+		})}
+	</ul>
+</nav>
 
 <style>
-  /* Collapsed state for sidebar-label elements */
-  @media (min-width: 1024px) {
-    aside#sidebar {
-      width: var(--sidebar-width, 240px);
-    }
-  }
-
-  /* Scrollbar hidden utility */
-  .scrollbar-hidden::-webkit-scrollbar {
-    display: none;
-  }
-  .scrollbar-hidden {
-    -ms-overflow-style: none;
-    scrollbar-width: none;
-  }
-
-  /* Hide default <details> marker; we render our own chevron. */
-  #sidebar details > summary::-webkit-details-marker { display: none; }
-  #sidebar details > summary { list-style: none; }
+	.sidebar {
+		font-family: var(--font-sans);
+		font-size: 0.95rem;
+	}
+	.sidebar ul {
+		list-style: none;
+		padding: 0;
+		margin: 0;
+		display: flex;
+		flex-direction: column;
+		gap: 0.5rem;
+	}
+	.sidebar a {
+		color: var(--color-muted, #9b9ba3);
+		text-decoration: none;
+		padding: 0.25rem 0;
+		display: inline-block;
+	}
+	.sidebar a:hover,
+	.sidebar a[aria-current="page"] {
+		color: var(--color-fg, #f5f5f7);
+	}
 </style>

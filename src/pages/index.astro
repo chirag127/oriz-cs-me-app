@@ -1,320 +1,54 @@
 ---
-/*
- * Home — v2 stratified spec sheet for oriz-me.
- *
- * Five horizontal bands on a single 980px column, separated by 1px hairlines:
- *
- *   1. Hero            — CHIRAG SINGHAL in Plex Sans Condensed 72px
- *   2. TODAY'S SYNC    — leader-dotted rows of source · count · time
- *   3. WORK            — 3-column tile grid of open-source projects
- *   4. CAREER          — timeline as horizontal rules
- *   5. Section nav     — inline mono row of /me · /work · /code …
- *
- * The header + provenance strip + footer are provided by Layout.astro;
- * this page is just the body.
- *
- * Per the v2 spec — NO hero photo, NO project thumbnails, NO ambient glow,
- * NO contribution heatmap, NO "Hire me" CTA. The data IS the hero.
- */
-
-import { experience, projects, summary } from '../content';
-import Layout from '../layouts/Layout.astro';
-import {
-  fetchDevToArticles,
-  fetchGitHubRepos,
-  fetchGitHubUser,
-  fetchLeetCodeStats,
-} from '../lib/api/index';
-
-// Build-time fan-out — Promise.all so a slow API doesn't serialize.
-// `fetch-data` script populates content/generated, we read it here.
-const [githubUser, githubRepos, leetcode, devto] = await Promise.all([
-  fetchGitHubUser().catch(() => null),
-  fetchGitHubRepos().catch(
-    () => [] as Awaited<ReturnType<typeof fetchGitHubRepos>>,
-  ),
-  fetchLeetCodeStats().catch(() => null),
-  fetchDevToArticles().catch(
-    () => [] as Awaited<ReturnType<typeof fetchDevToArticles>>,
-  ),
-]);
-
-const githubEvents =
-  (githubUser?.public_repos ?? 0) + (githubRepos?.length ?? 0);
-const totalStars = (githubRepos ?? []).reduce(
-  (sum: number, r: { stargazers_count?: number }) =>
-    sum + (r?.stargazers_count ?? 0),
-  0,
-);
-const repoCount = githubRepos?.length ?? 0;
-const leetcodeSolved = leetcode?.totalSolved ?? null;
-const devtoCount = devto?.length ?? 0;
-
-const featuredProjects = projects.filter((p) => p.featured).slice(0, 3);
-const activeRole = experience[0];
-const activeRoleTitle = activeRole?.title ?? 'Software Engineer';
-const activeRoleCompany = activeRole?.company ?? 'TCS';
-const activeRoleYear = (activeRole?.date ?? '2026').split(' ')[0] ?? '2026';
-
-// Compose a build-time UTC HH:MM string for the sync rows. The provenance
-// strip already shows the full ISO; rows show only HH:MMZ for compactness.
-const builtAtRaw =
-  import.meta.env.PUBLIC_DEPLOY_TIME ?? new Date().toISOString();
-const builtAtClock = (() => {
-  const date = new Date(builtAtRaw);
-  if (Number.isNaN(date.getTime())) return '03:07Z';
-  return `${date.toISOString().slice(11, 16)}Z`;
-})();
-
-interface SyncRow {
-  source: string;
-  body: string;
-  time: string;
-}
-
-// Eight sources surfaced on the home page. Per the brief, "… 3 more →"
-// summary trails. Numbers come from the build-time fetch where available;
-// the rest are seeded from authored content + the JSONL aggregates that
-// would be projected by the lifestream cache rebuild.
-const syncRows: SyncRow[] = [
-  {
-    source: 'github',
-    body: `${githubEvents || 247} events  ·  ${repoCount || 17} repos`,
-    time: builtAtClock,
-  },
-  {
-    source: 'lichess',
-    body: 'blitz 1842 (+12)  ·  43 games',
-    time: builtAtClock,
-  },
-  {
-    source: 'last.fm',
-    body: '1,847 scrobbles  ·  18 artists',
-    time: builtAtClock,
-  },
-  {
-    source: 'anilist',
-    body: '2 episodes new  ·  47 ongoing',
-    time: builtAtClock,
-  },
-  {
-    source: 'letterboxd',
-    body: '1 film logged  ·  237 total',
-    time: builtAtClock,
-  },
-  {
-    source: 'leetcode',
-    body: `${leetcodeSolved ?? 500}+ solved  ·  top 5%`,
-    time: builtAtClock,
-  },
-  {
-    source: 'dev.to',
-    body: `${devtoCount || 12} articles  ·  ${totalStars || 100}+ stars`,
-    time: builtAtClock,
-  },
-];
-
-// Career timeline — three rows max for the home page.
-const careerRows = [
-  {
-    year: activeRoleYear,
-    label: `${activeRoleTitle}, ${activeRoleCompany}`,
-  },
-  { year: '2025', label: 'B.Tech, AKTU' },
-  { year: '2022', label: 'JEE Advanced, AIR 11870' },
-];
+import BaseLayout from "../layouts/BaseLayout.astro";
+import Sidebar from "../components/Sidebar.astro";
 ---
 
-<Layout
-  title="Software Engineer & AI Specialist"
-  description={summary}
+<BaseLayout
+	title="Chirag Singhal"
+	description="Engineer building the chirag127 / oriz family — agent harnesses, Astro tooling, and personal-data infrastructure."
 >
-  <div class="spine">
-    <!-- ═══ HERO ════════════════════════════════════════════════════════ -->
-    <section class="band band-hero">
-      <h1 class="display display-72 hero-name">CHIRAG SINGHAL</h1>
-      <p class="hero-sub">{summary}</p>
-      <p class="hero-availability mono">
-        <span class="dash" aria-hidden="true">─</span>
-        available for
-        <span class="dash" aria-hidden="true">─</span>
-        backend
-        <span class="dot" aria-hidden="true">·</span>
-        ai/ml
-        <span class="dot" aria-hidden="true">·</span>
-        full-stack engagements
-      </p>
-    </section>
-
-    <hr class="hairline" />
-
-    <!-- ═══ TODAY'S SYNC ════════════════════════════════════════════════ -->
-    <section class="band">
-      <p class="eyebrow band-eyebrow">TODAY&apos;S SYNC</p>
-      <div class="sync-rows">
-        {syncRows.map((row) => (
-          <div class="leader-row">
-            <span class="leader-name">{row.source}</span>
-            <span class="leader-fill">{row.body}</span>
-            <span class="leader-time mono">{row.time}</span>
-          </div>
-        ))}
-        <p class="sync-trail mono">
-          <a href="/status/">…&nbsp;3 more &rarr;</a>
-        </p>
-      </div>
-    </section>
-
-    <hr class="hairline" />
-
-    <!-- ═══ WORK ════════════════════════════════════════════════════════ -->
-    <section class="band">
-      <p class="eyebrow band-eyebrow">WORK</p>
-      <div class="work-grid">
-        {featuredProjects.map((project) => {
-          const linkHref = project.link.startsWith('http')
-            ? project.link
-            : `https://${project.link}`;
-          const tech = project.tech.split(', ')[0] ?? '';
-          return (
-            <article class="tile">
-              <h3 class="tile-name">
-                <a href={linkHref} target="_blank" rel="noopener noreferrer">
-                  {project.name}
-                </a>
-              </h3>
-              <p class="tile-tag">{tech}</p>
-              <p class="tile-desc">{project.items[0]}</p>
-              <p class="tile-year">— 2026</p>
-            </article>
-          );
-        })}
-      </div>
-      <p class="band-trail mono">
-        <a href="/work/projects/">all projects &rarr;</a>
-      </p>
-    </section>
-
-    <hr class="hairline" />
-
-    <!-- ═══ CAREER ══════════════════════════════════════════════════════ -->
-    <section class="band">
-      <p class="eyebrow band-eyebrow">CAREER</p>
-      <div class="career-rows">
-        {careerRows.map((row) => (
-          <div class="timeline-row">
-            <span class="timeline-rule" aria-hidden="true">─</span>
-            <span class="timeline-year">{row.year}</span>
-            <span class="timeline-rule" aria-hidden="true">──</span>
-            <span class="timeline-label">{row.label}</span>
-          </div>
-        ))}
-      </div>
-      <p class="band-trail mono">
-        <a href="/work/career/">full career &rarr;</a>
-      </p>
-    </section>
-
-    <hr class="hairline" />
-
-    <!-- ═══ SECTION NAV ═════════════════════════════════════════════════ -->
-    <nav class="section-nav" aria-label="Section navigation">
-      <a href="/me/">/me</a>
-      <span aria-hidden="true">·</span>
-      <a href="/work/">/work</a>
-      <span aria-hidden="true">·</span>
-      <a href="/code/">/code</a>
-      <span aria-hidden="true">·</span>
-      <a href="/library/">/library</a>
-      <span aria-hidden="true">·</span>
-      <a href="/gaming/">/gaming</a>
-      <span aria-hidden="true">·</span>
-      <a href="/connect/">/connect</a>
-      <span aria-hidden="true">·</span>
-      <a href="/system/">/system</a>
-    </nav>
-  </div>
-</Layout>
+	<div class="page">
+		<aside><Sidebar /></aside>
+		<section class="hero">
+			<h1>Chirag Singhal</h1>
+			<p class="role">Engineer · Agent harnesses · Astro &amp; Firebase tooling</p>
+			<p class="bio">
+				Building the chirag127 / oriz family of sites and tools — small,
+				static, parallel-by-default.
+			</p>
+		</section>
+	</div>
+</BaseLayout>
 
 <style>
-  .band {
-    padding-block: clamp(1.75rem, 5vw, 2.75rem);
-  }
-  .band-hero {
-    padding-block: clamp(2.5rem, 7vw, 4rem) clamp(1.75rem, 5vw, 2.75rem);
-  }
-  .hero-name {
-    font-family: var(--font-display);
-    font-weight: 700;
-    color: var(--ink);
-    letter-spacing: -0.015em;
-    font-size: clamp(2.75rem, 8vw, 4.5rem);
-    line-height: 1;
-    margin: 0;
-  }
-  .hero-sub {
-    margin: 0.875rem 0 0;
-    color: var(--ink-soft);
-    font-size: clamp(1rem, 1.4vw, 1.25rem);
-    line-height: 1.45;
-    font-weight: 400;
-    max-width: 60ch;
-  }
-  .hero-availability {
-    margin: 1.25rem 0 0;
-    color: var(--ink);
-    font-size: 0.875rem;
-    letter-spacing: 0.04em;
-    font-feature-settings: "tnum" 1, "zero" 1, "calt" 0;
-    display: flex;
-    align-items: baseline;
-    flex-wrap: wrap;
-    gap: 0 0.5ch;
-  }
-  .hero-availability .dash { color: var(--rule); }
-  .hero-availability .dot { color: var(--ink-soft); }
-
-  .band-eyebrow {
-    margin: 0 0 1rem;
-  }
-  .sync-rows {
-    display: flex;
-    flex-direction: column;
-    gap: 0;
-  }
-  .sync-trail,
-  .band-trail {
-    margin: 1rem 0 0;
-    font-family: var(--font-mono);
-    font-size: 0.8125rem;
-    color: var(--ink-soft);
-    letter-spacing: 0.04em;
-  }
-  .sync-trail a,
-  .band-trail a {
-    color: var(--ink-soft);
-    text-decoration: underline;
-    text-decoration-thickness: 1px;
-    text-underline-offset: 3px;
-    text-decoration-color: var(--rule);
-  }
-  .sync-trail a:hover,
-  .band-trail a:hover {
-    color: var(--archival);
-    text-decoration-color: var(--archival);
-  }
-
-  .work-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 0.75rem;
-  }
-  @media (max-width: 720px) {
-    .work-grid { grid-template-columns: 1fr; }
-  }
-
-  .career-rows {
-    display: flex;
-    flex-direction: column;
-  }
+	.page {
+		max-width: 70rem;
+		margin: 0 auto;
+		padding: 4rem 1.5rem;
+		display: grid;
+		grid-template-columns: 12rem 1fr;
+		gap: 3rem;
+	}
+	@media (max-width: 720px) {
+		.page {
+			grid-template-columns: 1fr;
+			gap: 2rem;
+			padding: 2rem 1rem;
+		}
+	}
+	.hero h1 {
+		font-size: clamp(2rem, 4vw, 3.25rem);
+		font-weight: 600;
+		letter-spacing: -0.02em;
+		margin: 0 0 0.5rem;
+	}
+	.hero .role {
+		color: var(--color-muted, #9b9ba3);
+		margin: 0 0 1.5rem;
+	}
+	.hero .bio {
+		max-width: 40rem;
+		line-height: 1.6;
+		margin: 0;
+	}
 </style>

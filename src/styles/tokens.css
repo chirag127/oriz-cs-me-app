@@ -1,9 +1,0 @@
-/*
- * oriz-me — v2 datasheet white tokens.
- *
- * The full token system is in `global.css` (which is the entry point Tailwind
- * v4 expects, with @theme + @layer base blocks). This file is preserved as a
- * compatibility shim for older imports — adding nothing on top of global.css.
- *
- * If anything still imports `tokens.css` it just gets a no-op pass-through.
- */

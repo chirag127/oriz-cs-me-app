@@ -4,20 +4,19 @@ import Sidebar from "../components/Sidebar.astro";
 ---
 
 <BaseLayout
-	title="Privacy — Chirag Singhal"
-	description="Privacy policy for me.oriz.in. The full family-wide policy lives at oriz.in/privacy."
-	noindex={true}
+	title="Now — Chirag Singhal"
+	description="What I'm currently focused on. A nownownow.com-style page."
 >
 	<div class="page">
 		<aside><Sidebar /></aside>
 		<section>
-			<h1>Privacy</h1>
+			<h1>Now</h1>
+			<p class="muted">Last updated: TBD</p>
 			<p>
-				The privacy policy for the entire chirag127 / oriz family —
-				including this site — lives at
-				<a href="https://oriz.in/privacy" rel="noopener">oriz.in/privacy</a>.
+				This is a <a href="https://nownownow.com" rel="noopener">/now</a>
+				page — what I'm currently focused on.
 			</p>
-			<p><em>Stub. Site-specific notes (if any) will be added below.</em></p>
+			<p><em>Stub. Coming soon.</em></p>
 		</section>
 	</div>
 </BaseLayout>
@@ -34,5 +33,6 @@ import Sidebar from "../components/Sidebar.astro";
 	@media (max-width: 720px) {
 		.page { grid-template-columns: 1fr; gap: 2rem; padding: 2rem 1rem; }
 	}
-	h1 { font-size: 2rem; margin: 0 0 1rem; letter-spacing: -0.01em; }
+	h1 { font-size: 2rem; margin: 0 0 0.5rem; letter-spacing: -0.01em; }
+	.muted { color: var(--color-muted, #9b9ba3); margin: 0 0 1.5rem; }
 </style>

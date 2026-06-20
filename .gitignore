@@ -1,54 +1,34 @@
 # Dependencies
 node_modules/
+.pnpm-store/
 
 # Build output
 dist/
+.output/
+
+# Astro
 .astro/
 
-# Environment variables
+# Env
 .env
 .env.local
-.env.production
+.env.*.local
 
-# IDE
-.vscode/
-.idea/
-*.swp
-*.swo
-
-# OS
-.DS_Store
-Thumbs.db
-
-# Debug
+# Logs
 npm-debug.log*
+pnpm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
-# Firebase
-.firebase/
-firebase-debug.log
+# Editor / OS
+.DS_Store
+Thumbs.db
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+.idea/
 
-# Cloudflare
-.wrangler/
-
-# Generated API data — committed weekly by snapshot-weekly.yml so the Astro
-# SSG site has authoritative data baked into the build. Firestore is the
-# canonical store between snapshots; these files are a weekly mirror.
-# (Do NOT re-add to .gitignore — that turns the weekly commit into a no-op.)
-*.log
-
-# TypeScript incremental build cache
+# Coverage / temp
+coverage/
+.tmp/
 *.tsbuildinfo
-
-# Local scratch / one-off diagnostic dumps (do not commit)
-*_error*.txt
-*_errors*.txt
-dns_*.json
-search_results.md
-setup-domains.log
-missing_*.txt
-
-# Test output
-test-results/
-playwright-report/

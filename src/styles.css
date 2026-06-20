@@ -1,0 +1,7 @@
+/* me.oriz.in — global stylesheet.
+ *
+ * Imports the @chirag127/astro-shell Tailwind v4 entry, which pulls in
+ * Tailwind core + the family theme tokens (--color-bg, --color-fg,
+ * --color-accent, --font-sans, --font-mono).
+ */
+@import "@chirag127/astro-shell/styles.css";
