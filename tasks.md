@@ -12,7 +12,7 @@
 > - No iOS dependencies (Health Connect for fitness, not Apple Health).
 > - Strava is paywalled; Fitbit is the fallback.
 >
-> **OKF wiki cross-reference:** when in doubt, see [`knowledge/index.md`](knowledge/index.md).
+> **OKF wiki cross-reference:** when in doubt, see [`oriz/knowledge/sites/oriz-me/index.md`](../../../knowledge/sites/oriz-me/index.md).
 
 ---
 

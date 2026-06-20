@@ -48,7 +48,7 @@ Cloudflare Pages: `npm run build` → deploy `dist/`
 
 ## Survival layers
 
-Per [`knowledge/decisions/100-year-strategy.md`](./knowledge/decisions/100-year-strategy.md)
+Per [`100-year-strategy`](../../../knowledge/sites/oriz-me/decisions/100-year-strategy.md) (in the family bundle)
 §16, the site has two layers that survive even if everything else dies:
 
 | Layer                | URL                                                                 | What it has                                                                          |
