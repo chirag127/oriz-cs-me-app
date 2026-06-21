@@ -1,41 +1,41 @@
-# me
+# Oriz CS — Personal site
 
-Source for **me.oriz.in** — Chirag Singhal's personal site.
+> Chirag Singhal's personal site — hero, now, uses, CV, contact.
 
-Built on [`@chirag127/astro-shell`](https://github.com/chirag127/astro-shell)
-(Astro 6 · React 19 · Tailwind v4). Static output, deployed at
-**https://me.oriz.in**.
+**Live at**: https://me.oriz.in · **Status**: production
 
-## Pages
+## What this is
 
-- `/`        — hero
-- `/now`     — current focus ([nownownow.com](https://nownownow.com)-style)
-- `/uses`    — hardware + software ([uses.tech](https://uses.tech)-style)
-- `/cv`      — curriculum vitae
-- `/contact` — get in touch
-- `/privacy` — links to the family-wide policy at `oriz.in/privacy`
+The personal corner of the oriz family. A small static site for the author's bio, current focus, hardware/software setup, CV, and contact. Exempt from the family-wide monetization rule.
 
-## Family rules in effect
+## Per-feature inventory
 
-- **No auth** — auth lives in `@chirag127/astro-chrome` (not yet shipped).
-  `BaseLayout.astro` carries a TODO marking the future mount point.
-- **No monetization** — `me.oriz.in` is the personal site and is exempt from
-  the family monetization rule.
-- **No analytics** — analytics also lives in `astro-chrome`.
+| Feature | Status |
+|---|---|
+| `/` hero | ✅ live |
+| `/now` current focus (nownownow.com-style) | ✅ live |
+| `/uses` hardware + software (uses.tech-style) | ✅ live |
+| `/cv` curriculum vitae | ✅ live |
+| `/contact` get in touch | ✅ live |
+| `/privacy` (links to family-wide policy) | ✅ live |
+| Auth mount point | 📜 planned |
+| Analytics mount point | 📜 planned |
 
-## Develop
+## App-specific env vars
 
-```bash
-pnpm install
-pnpm dev
-```
+None beyond the family-wide set at `templates/.env.example`.
 
-Build:
+## Local dev
 
 ```bash
-pnpm build
+# from the workspace root (c:/D/oriz)
+pnpm -F me dev
 ```
+
+## Knowledge
+
+See [`./knowledge/`](./knowledge/) for app-specific decisions, runbooks, and services. Family rules / decisions / architecture live at the master repo's [`knowledge/`](../../../../knowledge/).
 
 ## License
 
-Source-available. See `LICENSE`.
+Source-available, all rights reserved. See master [`LICENSE`](../../../../LICENSE) — same terms across the family.
