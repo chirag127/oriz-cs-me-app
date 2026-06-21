@@ -15,7 +15,10 @@
     "test:coverage": "vitest run --coverage"
   },
   "dependencies": {
-    "@chirag127/astro-shell": "github:chirag127/astro-shell",
+    "@astrojs/mdx": "^4.0.0",
+    "@astrojs/react": "^5.0.5",
+    "@astrojs/sitemap": "^3.2.0",
+    "@chirag127/astro-shell": "^0.1.2",
     "@tailwindcss/vite": "^4.0.0",
     "astro": "^6.0.0",
     "react": "^19.0.0",

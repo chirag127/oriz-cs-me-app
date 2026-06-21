@@ -1,13 +1,8 @@
 /**
- * astro.config.ts — re-exports @chirag127/astro-shell defaults with site override.
+ * astro.config.ts — uses the @chirag127/astro-shell shell() wrapper.
  *
- * The shell provides: output: "static", React 19, MDX, sitemap, Tailwind v4
- * via Vite plugin. We just override `site` for me.oriz.in.
+ * The shell provides: output: "static", React 19, MDX, sitemap, Tailwind v4.
  */
-import { defineConfig } from "astro/config";
-import shellConfig from "@chirag127/astro-shell/astro.config";
+import { shell } from '@chirag127/astro-shell/shell'
 
-export default defineConfig({
-	...shellConfig,
-	site: "https://me.oriz.in",
-});
+export default shell({ site: 'https://me.oriz.in' })
