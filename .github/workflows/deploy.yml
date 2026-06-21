@@ -7,7 +7,7 @@ jobs:
   deploy:
     uses: chirag127/astro-shell/.github/workflows/deploy.yml@main
     with:
-      project-name: me
+      project-name: me-site
       build-output-directory: dist
     secrets:
       CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
