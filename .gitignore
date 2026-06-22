@@ -32,3 +32,6 @@ Thumbs.db
 coverage/
 .tmp/
 *.tsbuildinfo
+
+# env (synced via sops + age)
+.sops-age-key.txt
