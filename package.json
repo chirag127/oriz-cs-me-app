@@ -18,12 +18,13 @@
     "@astrojs/mdx": "^4.0.0",
     "@astrojs/react": "^5.0.5",
     "@astrojs/sitemap": "^3.2.0",
-    "@chirag127/astro-shell": "^0.1.2",
+    "@chirag127/astro-shell": "^0.1.3",
     "@tailwindcss/vite": "^4.0.0",
     "astro": "^6.0.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
-    "tailwindcss": "^4.0.0"
+    "tailwindcss": "^4.0.0",
+    "@chirag127/astro-chrome": "^0.1.3"
   },
   "devDependencies": {
     "@chirag127/astro-test-utils": "^0.1.1",
